@@ -9,10 +9,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// generateSdkCmd represents the generateSdk command
-var generateSdkCmd = &cobra.Command{
-	Use:   "generateSdk",
-	Short: "Generates Pulumi Provider SDKs",
+// compileSdkCmd represents the compileSdk command
+var compileSdkCmd = &cobra.Command{
+	Use:   "compile-raw-sdk",
+	Short: "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
 
@@ -20,20 +20,20 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("generateSdk called")
+		fmt.Println("compile raw sdk called")
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(generateSdkCmd)
+	rootCmd.AddCommand(compileSdkCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// generateSdkCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// compileSdkCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// generateSdkCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// compileSdkCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

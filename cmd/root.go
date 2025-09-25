@@ -12,17 +12,21 @@ import (
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "provider-sdk-builder",
-	Short: "Invoke to build Pulumi Provider SDKs",
-	Long: `
-Pulumi Provider SDK Builder generates SDKs that allow users to build Pulumi programs in the language of their choice.
-This tool currently supports generating Go, Python, .NET, NodesJS, and Java SDKs. 
-Each SDK is generated from a schema file and a Terraform Bridge Binary file for Terraform backed providers.
-Usage generateSDK --schema <schema file> --tfbridge <tfbridge binary file> --out <output directory> --language <language>
-All arguments are optional, and if none are provided the tool will attempt to generate all SDKs, and will look for a schema and tfbridge in the local file structure.`,
+	Short: "Generate Pulumi SDKs for a given cloud provider",
+	Long: `Generate Pulumi Provider SDKs against a given cloud provider
+Supports Go, Python, .NET, NodesJS, and Java. 
+SDKs require a schema file. Terraform backed providers also require a tfbridge binary.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
 }
+
+var (
+	providerName string
+	schemaPath   string
+	language     string
+	outputPath   string
+)
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
@@ -34,11 +38,12 @@ func Execute() {
 }
 
 func init() {
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
 
-	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.provider-sdk-builder.yaml)")
+	// Global flags used in multiple commands
+	rootCmd.PersistentFlags().StringVarP(&providerName, "providerName", "p", "", "Name of the provider, e.g. 'aws'")
+	rootCmd.PersistentFlags().StringVarP(&schemaPath, "schema", "s", "", "Path to the directory with the schema file and tfbridge binary (if applicable)")
+	rootCmd.PersistentFlags().StringVarP(&language, "language", "l", "all", "Programming language")
+	rootCmd.PersistentFlags().StringVarP(&outputPath, "out", "o", "./sdk", "Output directory")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
