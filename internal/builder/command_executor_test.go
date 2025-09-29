@@ -3,8 +3,6 @@ package builder
 import (
 	"strings"
 	"testing"
-
-	"github.com/pulumi/provider-sdk-builder/pkg/shell"
 )
 
 func TestExecuteCommandSequence(t *testing.T) {
@@ -84,14 +82,8 @@ func TestExecuteCommandSequence(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Create shell command sequence
-			sequence := shell.NewShellCommandSequence()
-			for _, cmd := range tt.commands {
-				sequence.Append(cmd)
-			}
-
 			// Execute the sequence
-			output, err := ExecuteCommandSequence(sequence)
+			output, err := ExecuteCommandSequence(tt.commands)
 
 			// Check error expectation
 			if tt.expectError && err == nil {
@@ -110,10 +102,9 @@ func TestExecuteCommandSequence(t *testing.T) {
 }
 
 func TestExecuteCommandSequenceSingleCommand(t *testing.T) {
-	sequence := shell.NewShellCommandSequence()
-	sequence.Append("echo 'test output'")
+	commands := []string{"echo 'test output'"}
 
-	output, err := ExecuteCommandSequence(sequence)
+	output, err := ExecuteCommandSequence(commands)
 
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
@@ -129,12 +120,13 @@ func TestExecuteCommandSequenceSingleCommand(t *testing.T) {
 }
 
 func TestExecuteCommandSequenceErrorHandling(t *testing.T) {
-	sequence := shell.NewShellCommandSequence()
-	sequence.Append("echo 'before error'")
-	sequence.Append("exit 1") // This will cause an error
-	sequence.Append("echo 'after error'") // This should not execute
+	commands := []string{
+		"echo 'before error'",
+		"exit 1",             // This will cause an error
+		"echo 'after error'", // This should not execute
+	}
 
-	output, err := ExecuteCommandSequence(sequence)
+	output, err := ExecuteCommandSequence(commands)
 
 	if err == nil {
 		t.Error("expected error but got none")
@@ -151,17 +143,15 @@ func TestExecuteCommandSequenceErrorHandling(t *testing.T) {
 	}
 
 	// Should contain error details
-	if !strings.Contains(err.Error(), "command failed") {
+	if !strings.Contains(err.Error(), "\"exit 1\" failed:") {
 		t.Errorf("expected error message to contain 'command failed', got: %v", err)
 	}
 }
 
 func TestExecuteCommandSequenceOutputFormatting(t *testing.T) {
-	sequence := shell.NewShellCommandSequence()
-	sequence.Append("echo 'line1'")
-	sequence.Append("echo 'line2'")
+	commands := []string{"echo 'line1'", "echo 'line2'"}
 
-	output, err := ExecuteCommandSequence(sequence)
+	output, err := ExecuteCommandSequence(commands)
 
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)

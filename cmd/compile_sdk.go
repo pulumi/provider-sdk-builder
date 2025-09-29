@@ -11,7 +11,7 @@ import (
 
 // compileSdkCmd represents the compileSdk command
 var compileSdkCmd = &cobra.Command{
-	Use:   "compile-raw-sdk",
+	Use:   "compile",
 	Short: "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:

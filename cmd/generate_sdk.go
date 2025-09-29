@@ -5,21 +5,20 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/spf13/cobra"
 
-	"github.com/pulumi/provider-sdk-builder/pkg/builder"
+	"github.com/pulumi/provider-sdk-builder/internal/builder"
 )
 
 // generateSdkCmd represents the generateSdk command
 var generateSdkCmd = &cobra.Command{
-	Use:   "generate-raw-sdk",
+	Use:   "generate",
 	Short: "Generates the source code for a Pulumi SDK",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Long: `Generates sdks for each of the specified languages using the schema of your choice.
+	Outputs will be stored in the form /sdk/{lang} in the directory specified by output path`,
 
-Usage: 
-generate-sdk --schema <schema file> --tfbridge <tfbridge binary file> --out <output directory> --language <language>`,
 	Run: func(cmd *cobra.Command, args []string) {
 		generateRawSdk(cmd, args)
 	},
@@ -29,18 +28,16 @@ func generateRawSdk(cmd *cobra.Command, args []string) error {
 
 	//TODO put in verbose flag?
 	fmt.Printf("Generating SDK for provider %s\n SchemaPath: %s\n OutputPath: %s\n Languages: %v\n", providerName, schemaPath, outputPath, language)
-	commands, err := builder.GenerateSdks(providerName, schemaPath, outputPath, language)
+	commands, err := builder.GenerateSdksShellCommands(providerName, schemaPath, outputPath, language)
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Prepared the following shell commands to run:\n\n%s\n\n", commands.String())
+	fmt.Printf("Prepared the following shell commands to run:\n\n%s\n\n", strings.Join(commands, "\n"))
 	output, err := builder.ExecuteCommandSequence(commands)
 	fmt.Print(output)
 	return err
 }
 
 func init() {
-	generateSdkCmd.PersistentFlags().String("foo", "", "A help for foo")
-
 	rootCmd.AddCommand(generateSdkCmd)
 }

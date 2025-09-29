@@ -9,9 +9,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// packageForReleaseCmd represents the packageForRelease command
-var packageForReleaseCmd = &cobra.Command{
-	Use:   "package-for-release",
+// packageCmd represents the package command
+var packageSdkCmd = &cobra.Command{
+	Use:   "package",
 	Short: "Cleans up unneeded source code and packages files for release",
 	Long:  `Cleans up unneeded source code and packages files for release.`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -20,7 +20,7 @@ var packageForReleaseCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(packageForReleaseCmd)
+	rootCmd.AddCommand(packageSdkCmd)
 
 	// Here you will define your flags and configuration settings.
 
