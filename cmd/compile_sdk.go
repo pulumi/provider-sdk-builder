@@ -5,7 +5,9 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 
+	"github.com/pulumi/provider-sdk-builder/internal/builder"
 	"github.com/spf13/cobra"
 )
 
@@ -20,8 +22,31 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("compile raw sdk called")
+		compileSdk()
 	},
+}
+
+var (
+	compileOnlyInstructions = builder.BuildInstructions{CompileSdks: true}
+)
+
+func compileSdk() error {
+
+	//TODO put in verbose flag?
+	fmt.Printf("Compiling SDK for provider %s\n OutputPath: %s\n Languages: %v\n", providerName, outputPath, language)
+	params := builder.BuildParameters{OutputPath: outputPath, RawRequestedLanguage: language}
+
+	// TODO don't actually do the work if we dont have the stuff we need to do it
+	commands, err := builder.GenerateBuildCmds(params, compileOnlyInstructions)
+
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Prepared the following shell commands to run:\n\n%s\n\n", strings.Join(commands, "\n"))
+	// TODO the execution should not be driven by the command functions, they should just dispatch and be done with
+	output, err := builder.ExecuteCommandSequence(commands)
+	fmt.Print(output)
+	return err
 }
 
 func init() {

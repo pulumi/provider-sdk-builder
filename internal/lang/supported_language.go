@@ -12,7 +12,7 @@ type SupportedLanguage string
 type Language interface {
 	String() string
 	GenerateSdkRecipe(providerName, path, outputPath string) []string
-	CompileSdkRecipe() []string
+	CompileSdkRecipe(outputPath string) []string
 	PackageSdkRecipie() []string
 }
 

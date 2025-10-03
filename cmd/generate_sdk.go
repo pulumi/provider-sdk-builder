@@ -20,15 +20,20 @@ var generateSdkCmd = &cobra.Command{
 	Outputs will be stored in the form /sdk/{lang} in the directory specified by output path`,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		generateRawSdk(cmd, args)
+		generateRawSdk()
 	},
 }
 
-func generateRawSdk(cmd *cobra.Command, args []string) error {
+var (
+	generateOnlyInstructions = builder.BuildInstructions{GenerateSdks: true}
+)
 
-	//TODO put in verbose flag?
+func generateRawSdk() error {
+
+	//TODO refactor logging, put in verbose flag, clean up logs
 	fmt.Printf("Generating SDK for provider %s\n SchemaPath: %s\n OutputPath: %s\n Languages: %v\n", providerName, schemaPath, outputPath, language)
-	commands, err := builder.GenerateSdksShellCommands(providerName, schemaPath, outputPath, language)
+	params := builder.BuildParameters{ProviderName: providerName, SchemaPath: schemaPath, OutputPath: outputPath, RawRequestedLanguage: language}
+	commands, err := builder.GenerateBuildCmds(params, generateOnlyInstructions)
 	if err != nil {
 		return err
 	}

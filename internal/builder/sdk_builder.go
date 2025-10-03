@@ -4,27 +4,43 @@ import (
 	"github.com/pulumi/provider-sdk-builder/internal/lang"
 )
 
-func BuildSdks() error {
-	return nil
+type BuildParameters struct {
+	ProviderName         string
+	SchemaPath           string
+	OutputPath           string
+	RawRequestedLanguage string
 }
 
-func GenerateSdksShellCommands(providerName, schemaPath, outputPath, rawLanguageString string) ([]string, error) {
-
-	languages, err := lang.ParseRequestedLanguages(rawLanguageString)
-	if err != nil {
-		return []string{}, err
-	}
-	return buildGenerateShellCommands(providerName, schemaPath, outputPath, languages), nil
+type BuildInstructions struct {
+	GenerateSdks      bool
+	CompileSdks       bool
+	PackageForRelease bool
 }
 
-func buildGenerateShellCommands(providerName, schemaPath, outputPath string, languages []lang.Language) []string {
+func GenerateBuildCmds(params BuildParameters, instructions BuildInstructions) ([]string, error) {
 
 	var result []string
-
-	for _, chosenLanguage := range languages {
-		commands := chosenLanguage.GenerateSdkRecipe(providerName, schemaPath, outputPath)
-		result = append(result, commands...)
+	languages, err := lang.ParseRequestedLanguages(params.RawRequestedLanguage)
+	if err != nil {
+		return result, err
 	}
 
-	return result
+	for _, chosenLanguage := range languages {
+		// TODO to enable running this in parallel, we need to collect the commands for each language into a seprate list here
+		if instructions.GenerateSdks {
+			result = append(result, chosenLanguage.GenerateSdkRecipe(params.ProviderName, params.SchemaPath, params.OutputPath)...)
+		}
+
+		if instructions.CompileSdks {
+			result = append(result, chosenLanguage.CompileSdkRecipe(params.OutputPath)...)
+		}
+
+		if instructions.PackageForRelease {
+			result = append(result, chosenLanguage.PackageSdkRecipie()...)
+		}
+	}
+
+	// TODO dispatch each language in its own thread
+
+	return result, nil
 }
