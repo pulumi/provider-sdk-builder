@@ -1,15 +1,8 @@
 package builder
 
 import (
-	"github.com/pulumi/provider-sdk-builder/internal/lang"
+	"errors"
 )
-
-type BuildParameters struct {
-	ProviderName         string
-	SchemaPath           string
-	OutputPath           string
-	RawRequestedLanguage string
-}
 
 type BuildInstructions struct {
 	GenerateSdks      bool
@@ -20,15 +13,11 @@ type BuildInstructions struct {
 func GenerateBuildCmds(params BuildParameters, instructions BuildInstructions) ([]string, error) {
 
 	var result []string
-	languages, err := lang.ParseRequestedLanguages(params.RawRequestedLanguage)
-	if err != nil {
-		return result, err
-	}
 
-	for _, chosenLanguage := range languages {
+	for _, chosenLanguage := range params.RequestedLanguages {
 		// TODO to enable running this in parallel, we need to collect the commands for each language into a seprate list here
 		if instructions.GenerateSdks {
-			result = append(result, chosenLanguage.GenerateSdkRecipe(params.ProviderName, params.SchemaPath, params.OutputPath)...)
+			result = append(result, chosenLanguage.GenerateSdkRecipe(params.SchemaPath, params.OutputPath, params.VersionString)...)
 		}
 
 		if instructions.CompileSdks {
@@ -40,7 +29,9 @@ func GenerateBuildCmds(params BuildParameters, instructions BuildInstructions) (
 		}
 	}
 
-	// TODO dispatch each language in its own thread
+	if len(result) == 0 {
+		return result, errors.New("Empty list of commands generated from GenerateBuildCommand, aborting build")
+	}
 
 	return result, nil
 }

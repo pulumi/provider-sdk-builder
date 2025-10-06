@@ -7,17 +7,17 @@ import (
 
 func TestNodeJSGenerateSdkRecipe(t *testing.T) {
 	nodejs := NodeJS{}
-	providerName := "k8s"
-	path := "/k8s/schema.json"
+	schemaPath := "/k8s/schema.json"
 	outputPath := "/sdk/output"
+	version := "4.5.6"
 
-	result := nodejs.GenerateSdkRecipe(providerName, path, outputPath)
+	result := nodejs.GenerateSdkRecipe(schemaPath, outputPath, version)
 
 	if len(result) != 1 {
 		t.Fatalf("expected 1 command, got %d", len(result))
 	}
 
-	expectedCmd := "pulumi package gen-sdk /k8s/schema.json --language nodejs --out /sdk/output"
+	expectedCmd := "pulumi package gen-sdk /k8s/schema.json --language nodejs --out /sdk/output --version 4.5.6"
 	if result[0] != expectedCmd {
 		t.Errorf("expected: %q\ngot:      %q", expectedCmd, result[0])
 	}

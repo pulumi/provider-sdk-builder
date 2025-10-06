@@ -7,17 +7,17 @@ import (
 
 func TestGoLangGenerateSdkRecipe(t *testing.T) {
 	goLang := GoLang{}
-	providerName := "aws"
-	path := "/path/to/schema.json"
+	schemaPath := "/path/to/schema.json"
 	outputPath := "/output/dir"
+	version := "1.0.0"
 
-	result := goLang.GenerateSdkRecipe(providerName, path, outputPath)
+	result := goLang.GenerateSdkRecipe(schemaPath, outputPath, version)
 
 	if len(result) != 1 {
 		t.Fatalf("expected 1 command, got %d", len(result))
 	}
 
-	expectedCmd := "pulumi package gen-sdk /path/to/schema.json --language go --out /output/dir"
+	expectedCmd := "pulumi package gen-sdk /path/to/schema.json --language go --out /output/dir --version 1.0.0"
 	if result[0] != expectedCmd {
 		t.Errorf("expected: %q\ngot:      %q", expectedCmd, result[0])
 	}

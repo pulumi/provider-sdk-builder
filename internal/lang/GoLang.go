@@ -6,15 +6,15 @@ import (
 
 type GoLang struct{}
 
-func (p GoLang) String() string {
+func (l GoLang) String() string {
 	return "go"
 }
 
-func (p GoLang) GenerateSdkRecipe(providerName, path, outputPath string) []string {
-	return BaseGenerateSdkCommand(providerName, path, outputPath, p.String())
+func (l GoLang) GenerateSdkRecipe(schemaPath, outputPath, version string) []string {
+	return BaseGenerateSdkCommand(schemaPath, outputPath, l.String(), version)
 }
 
-func (p GoLang) CompileSdkRecipe(outputPath string) []string {
+func (l GoLang) CompileSdkRecipe(outputPath string) []string {
 	// Named individual commands for ease of comprehension
 	const (
 		cdToSdkDir        = "cd {OutputPath}/"
@@ -31,6 +31,6 @@ func (p GoLang) CompileSdkRecipe(outputPath string) []string {
 	return []string{compileGoCmd}
 }
 
-func (p GoLang) PackageSdkRecipie() []string {
+func (l GoLang) PackageSdkRecipie() []string {
 	return []string{}
 }

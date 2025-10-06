@@ -7,11 +7,9 @@ import (
 
 const ALL_LANGUAGES = "all"
 
-type SupportedLanguage string
-
 type Language interface {
 	String() string
-	GenerateSdkRecipe(providerName, path, outputPath string) []string
+	GenerateSdkRecipe(schemaPath, outputPath, version string) []string
 	CompileSdkRecipe(outputPath string) []string
 	PackageSdkRecipie() []string
 }

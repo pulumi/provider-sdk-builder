@@ -7,17 +7,17 @@ import (
 
 func TestJavaGenerateSdkRecipe(t *testing.T) {
 	java := Java{}
-	providerName := "gcp"
-	path := "/schemas/gcp.json"
+	schemaPath := "/schemas/gcp.json"
 	outputPath := "/output/java"
+	version := "3.2.1"
 
-	result := java.GenerateSdkRecipe(providerName, path, outputPath)
+	result := java.GenerateSdkRecipe(schemaPath, outputPath, version)
 
 	if len(result) != 1 {
 		t.Fatalf("expected 1 command, got %d", len(result))
 	}
 
-	expectedCmd := "pulumi package gen-sdk /schemas/gcp.json --language java --out /output/java"
+	expectedCmd := "pulumi package gen-sdk /schemas/gcp.json --language java --out /output/java --version 3.2.1"
 	if result[0] != expectedCmd {
 		t.Errorf("expected: %q\ngot:      %q", expectedCmd, result[0])
 	}

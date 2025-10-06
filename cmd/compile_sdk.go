@@ -32,33 +32,25 @@ var (
 
 func compileSdk() error {
 
-	//TODO put in verbose flag?
-	fmt.Printf("Compiling SDK for provider %s\n OutputPath: %s\n Languages: %v\n", providerName, outputPath, language)
-	params := builder.BuildParameters{OutputPath: outputPath, RawRequestedLanguage: language}
+	if verbose {
+		fmt.Printf("Compiling the SDKs found at Path: %s\nLanguages: %v\n", providerPath, rawLanguageString)
+	}
 
-	// TODO don't actually do the work if we dont have the stuff we need to do it
-	commands, err := builder.GenerateBuildCmds(params, compileOnlyInstructions)
-
+	params, err := builder.ParseInputs(providerPath, rawLanguageString, schemaPath, outputPath, sdkVersionString)
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Prepared the following shell commands to run:\n\n%s\n\n", strings.Join(commands, "\n"))
-	// TODO the execution should not be driven by the command functions, they should just dispatch and be done with
-	output, err := builder.ExecuteCommandSequence(commands)
+
+	commands, err := builder.GenerateBuildCmds(params, compileOnlyInstructions)
+	if err != nil {
+		return err
+	}
+
+	output, err := builder.ExecuteCommandSequence(commands, verbose)
 	fmt.Print(output)
 	return err
 }
 
 func init() {
 	rootCmd.AddCommand(compileSdkCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// compileSdkCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// compileSdkCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

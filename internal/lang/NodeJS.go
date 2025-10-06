@@ -6,15 +6,15 @@ import (
 
 type NodeJS struct{}
 
-func (p NodeJS) String() string {
+func (l NodeJS) String() string {
 	return "nodejs"
 }
 
-func (p NodeJS) GenerateSdkRecipe(providerName, path, outputPath string) []string {
-	return BaseGenerateSdkCommand(providerName, path, outputPath, p.String())
+func (l NodeJS) GenerateSdkRecipe(schemaPath, outputPath, version string) []string {
+	return BaseGenerateSdkCommand(schemaPath, outputPath, l.String(), version)
 }
 
-func (p NodeJS) CompileSdkRecipe(outputPath string) []string {
+func (l NodeJS) CompileSdkRecipe(outputPath string) []string {
 	// Named individual commands for ease of comprehension
 	const (
 		cdToNodeDirCmd             = "cd {OutputPath}/nodejs"
@@ -35,6 +35,6 @@ func (p NodeJS) CompileSdkRecipe(outputPath string) []string {
 	return []string{compileNodeCmd}
 }
 
-func (p NodeJS) PackageSdkRecipie() []string {
+func (l NodeJS) PackageSdkRecipie() []string {
 	return []string{}
 }

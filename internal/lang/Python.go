@@ -6,15 +6,15 @@ import (
 
 type Python struct{}
 
-func (p Python) String() string {
+func (l Python) String() string {
 	return "python"
 }
 
-func (p Python) GenerateSdkRecipe(providerName, path, outputPath string) []string {
-	return BaseGenerateSdkCommand(providerName, path, outputPath, p.String())
+func (l Python) GenerateSdkRecipe(schemaPath, outputPath, version string) []string {
+	return BaseGenerateSdkCommand(schemaPath, outputPath, l.String(), version)
 }
 
-func (p Python) CompileSdkRecipe(outputPath string) []string {
+func (l Python) CompileSdkRecipe(outputPath string) []string {
 
 	// Named individual commands for ease of comprehension
 	const (
@@ -46,6 +46,6 @@ func (p Python) CompileSdkRecipe(outputPath string) []string {
 	return []string{compilePythonCmd}
 }
 
-func (p Python) PackageSdkRecipie() []string {
+func (l Python) PackageSdkRecipie() []string {
 	return []string{}
 }

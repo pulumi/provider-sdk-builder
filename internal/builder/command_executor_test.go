@@ -26,7 +26,7 @@ func TestExecuteCommandSequence(t *testing.T) {
 			expectError: false,
 			checkOutput: func(output string) bool {
 				return strings.Contains(output, "hello world") &&
-					strings.Contains(output, "=== Command 1:")
+					strings.Contains(output, "=== Command 1 ===")
 			},
 		},
 		{
@@ -36,8 +36,8 @@ func TestExecuteCommandSequence(t *testing.T) {
 			checkOutput: func(output string) bool {
 				return strings.Contains(output, "first") &&
 					strings.Contains(output, "second") &&
-					strings.Contains(output, "=== Command 1:") &&
-					strings.Contains(output, "=== Command 2:")
+					strings.Contains(output, "=== Command 1 ===") &&
+					strings.Contains(output, "=== Command 2 ===")
 			},
 		},
 		{
@@ -46,7 +46,7 @@ func TestExecuteCommandSequence(t *testing.T) {
 			expectError: false,
 			checkOutput: func(output string) bool {
 				return strings.Contains(output, "/") && // Should contain path
-					strings.Contains(output, "=== Command 1:")
+					strings.Contains(output, "=== Command 1 ===")
 			},
 		},
 		{
@@ -54,7 +54,7 @@ func TestExecuteCommandSequence(t *testing.T) {
 			commands:    []string{"nonexistentcommand123"},
 			expectError: true,
 			checkOutput: func(output string) bool {
-				return strings.Contains(output, "=== Command 1:")
+				return strings.Contains(output, "=== Command 1 ===")
 			},
 		},
 		{
@@ -63,8 +63,8 @@ func TestExecuteCommandSequence(t *testing.T) {
 			expectError: true,
 			checkOutput: func(output string) bool {
 				return strings.Contains(output, "before error") &&
-					strings.Contains(output, "=== Command 1:") &&
-					strings.Contains(output, "=== Command 2:")
+					strings.Contains(output, "=== Command 1 ===") &&
+					strings.Contains(output, "=== Command 2 ===")
 			},
 		},
 		{
@@ -74,8 +74,8 @@ func TestExecuteCommandSequence(t *testing.T) {
 			checkOutput: func(output string) bool {
 				return strings.Contains(output, "test") &&
 					strings.Contains(output, "after empty") &&
-					strings.Contains(output, "=== Command 1:") &&
-					strings.Contains(output, "=== Command 3:")
+					strings.Contains(output, "=== Command 1 ===") &&
+					strings.Contains(output, "=== Command 3 ===")
 			},
 		},
 	}
@@ -83,7 +83,7 @@ func TestExecuteCommandSequence(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Execute the sequence
-			output, err := ExecuteCommandSequence(tt.commands)
+			output, err := ExecuteCommandSequence(tt.commands, true)
 
 			// Check error expectation
 			if tt.expectError && err == nil {
@@ -104,7 +104,7 @@ func TestExecuteCommandSequence(t *testing.T) {
 func TestExecuteCommandSequenceSingleCommand(t *testing.T) {
 	commands := []string{"echo 'test output'"}
 
-	output, err := ExecuteCommandSequence(commands)
+	output, err := ExecuteCommandSequence(commands, true)
 
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
@@ -114,7 +114,7 @@ func TestExecuteCommandSequenceSingleCommand(t *testing.T) {
 		t.Errorf("expected output to contain 'test output', got: %q", output)
 	}
 
-	if !strings.Contains(output, "=== Command 1:") {
+	if !strings.Contains(output, "=== Command 1 ===") {
 		t.Errorf("expected output to contain command header, got: %q", output)
 	}
 }
@@ -126,7 +126,7 @@ func TestExecuteCommandSequenceErrorHandling(t *testing.T) {
 		"echo 'after error'", // This should not execute
 	}
 
-	output, err := ExecuteCommandSequence(commands)
+	output, err := ExecuteCommandSequence(commands, true)
 
 	if err == nil {
 		t.Error("expected error but got none")
@@ -143,26 +143,26 @@ func TestExecuteCommandSequenceErrorHandling(t *testing.T) {
 	}
 
 	// Should contain error details
-	if !strings.Contains(err.Error(), "\"exit 1\" failed:") {
-		t.Errorf("expected error message to contain 'command failed', got: %v", err)
+	if !strings.Contains(err.Error(), "\"exit 1\" FAILED:") {
+		t.Errorf("expected error message to contain 'command FAILED', got: %v", err)
 	}
 }
 
 func TestExecuteCommandSequenceOutputFormatting(t *testing.T) {
 	commands := []string{"echo 'line1'", "echo 'line2'"}
 
-	output, err := ExecuteCommandSequence(commands)
+	output, err := ExecuteCommandSequence(commands, true)
 
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
 
 	// Verify command headers are present
-	if !strings.Contains(output, "=== Command 1: echo 'line1' ===") {
+	if !strings.Contains(output, "=== Command 1 ===") {
 		t.Errorf("expected first command header, got: %q", output)
 	}
 
-	if !strings.Contains(output, "=== Command 2: echo 'line2' ===") {
+	if !strings.Contains(output, "=== Command 2 ===") {
 		t.Errorf("expected second command header, got: %q", output)
 	}
 

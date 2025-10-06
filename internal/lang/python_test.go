@@ -7,17 +7,17 @@ import (
 
 func TestPythonGenerateSdkRecipe(t *testing.T) {
 	python := Python{}
-	providerName := "azure"
-	path := "/schemas/azure.json"
+	schemaPath := "/schemas/azure.json"
 	outputPath := "/build/sdks"
+	version := "2.1.0"
 
-	result := python.GenerateSdkRecipe(providerName, path, outputPath)
+	result := python.GenerateSdkRecipe(schemaPath, outputPath, version)
 
 	if len(result) != 1 {
 		t.Fatalf("expected 1 command, got %d", len(result))
 	}
 
-	expectedCmd := "pulumi package gen-sdk /schemas/azure.json --language python --out /build/sdks"
+	expectedCmd := "pulumi package gen-sdk /schemas/azure.json --language python --out /build/sdks --version 2.1.0"
 	if result[0] != expectedCmd {
 		t.Errorf("expected: %q\ngot:      %q", expectedCmd, result[0])
 	}

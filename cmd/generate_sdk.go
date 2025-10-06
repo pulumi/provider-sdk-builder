@@ -30,15 +30,21 @@ var (
 
 func generateRawSdk() error {
 
-	//TODO refactor logging, put in verbose flag, clean up logs
-	fmt.Printf("Generating SDK for provider %s\n SchemaPath: %s\n OutputPath: %s\n Languages: %v\n", providerName, schemaPath, outputPath, language)
-	params := builder.BuildParameters{ProviderName: providerName, SchemaPath: schemaPath, OutputPath: outputPath, RawRequestedLanguage: language}
+	if verbose {
+		fmt.Printf("Generating the SDKs for provider found at Path: %s\nLanguages: %v\n", providerPath, rawLanguageString)
+	}
+
+	params, err := builder.ParseInputs(providerPath, rawLanguageString, schemaPath, outputPath, sdkVersionString)
+	if err != nil {
+		return err
+	}
+
 	commands, err := builder.GenerateBuildCmds(params, generateOnlyInstructions)
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Prepared the following shell commands to run:\n\n%s\n\n", strings.Join(commands, "\n"))
-	output, err := builder.ExecuteCommandSequence(commands)
+
+	output, err := builder.ExecuteCommandSequence(commands, verbose)
 	fmt.Print(output)
 	return err
 }

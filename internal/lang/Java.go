@@ -6,15 +6,15 @@ import (
 
 type Java struct{}
 
-func (p Java) String() string {
+func (l Java) String() string {
 	return "java"
 }
 
-func (p Java) GenerateSdkRecipe(providerName, path, outputPath string) []string {
-	return BaseGenerateSdkCommand(providerName, path, outputPath, p.String())
+func (l Java) GenerateSdkRecipe(schemaPath, outputPath, version string) []string {
+	return BaseGenerateSdkCommand(schemaPath, outputPath, l.String(), version)
 }
 
-func (p Java) CompileSdkRecipe(outputPath string) []string {
+func (l Java) CompileSdkRecipe(outputPath string) []string {
 
 	// Named individual commands for ease of comprehension
 	const (
@@ -34,6 +34,6 @@ func (p Java) CompileSdkRecipe(outputPath string) []string {
 	return []string{compileJavaCmd}
 }
 
-func (p Java) PackageSdkRecipie() []string {
+func (l Java) PackageSdkRecipie() []string {
 	return []string{}
 }

@@ -6,15 +6,15 @@ import (
 
 type DotNet struct{}
 
-func (p DotNet) String() string {
+func (l DotNet) String() string {
 	return "dotnet"
 }
 
-func (p DotNet) GenerateSdkRecipe(providerName, path, outputPath string) []string {
-	return BaseGenerateSdkCommand(providerName, path, outputPath, p.String())
+func (l DotNet) GenerateSdkRecipe(schemaPath, outputPath, version string) []string {
+	return BaseGenerateSdkCommand(schemaPath, outputPath, l.String(), version)
 }
 
-func (p DotNet) CompileSdkRecipe(outputPath string) []string {
+func (l DotNet) CompileSdkRecipe(outputPath string) []string {
 	// Named individual commands for ease of comprehension
 	const (
 		makeNugetDir     = "mkdir -p nuget"
@@ -33,6 +33,6 @@ func (p DotNet) CompileSdkRecipe(outputPath string) []string {
 	return []string{compileDotNetCmd}
 }
 
-func (p DotNet) PackageSdkRecipie() []string {
+func (l DotNet) PackageSdkRecipie() []string {
 	return []string{}
 }

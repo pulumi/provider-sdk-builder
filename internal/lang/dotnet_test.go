@@ -7,17 +7,17 @@ import (
 
 func TestDotNetGenerateSdkRecipe(t *testing.T) {
 	dotnet := DotNet{}
-	providerName := "random"
-	path := "/random/schema.json"
+	schemaPath := "/random/schema.json"
 	outputPath := "/dotnet/build"
+	version := "0.9.8"
 
-	result := dotnet.GenerateSdkRecipe(providerName, path, outputPath)
+	result := dotnet.GenerateSdkRecipe(schemaPath, outputPath, version)
 
 	if len(result) != 1 {
 		t.Fatalf("expected 1 command, got %d", len(result))
 	}
 
-	expectedCmd := "pulumi package gen-sdk /random/schema.json --language dotnet --out /dotnet/build"
+	expectedCmd := "pulumi package gen-sdk /random/schema.json --language dotnet --out /dotnet/build --version 0.9.8"
 	if result[0] != expectedCmd {
 		t.Errorf("expected: %q\ngot:      %q", expectedCmd, result[0])
 	}

@@ -22,11 +22,13 @@ SDKs require a schema file. Terraform backed providers also require a tfbridge b
 }
 
 var (
-	providerName     string
-	schemaPath       string
-	language         string
-	outputPath       string
-	sdkVersionString string
+	providerPath      string
+	rawLanguageString string
+	outputPath        string
+	sdkVersionString  string
+	schemaPath        string
+
+	verbose bool
 )
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -41,13 +43,11 @@ func Execute() {
 func init() {
 
 	// Global flags used in multiple commands
-	rootCmd.PersistentFlags().StringVarP(&providerName, "providerName", "p", "", "Name of the provider, e.g. 'aws'")
-	rootCmd.PersistentFlags().StringVarP(&schemaPath, "schema", "s", "", "Path to the directory with the schema file and tfbridge binary (if applicable)")
-	rootCmd.PersistentFlags().StringVarP(&language, "language", "l", "all", "Programming language")
-	rootCmd.PersistentFlags().StringVarP(&outputPath, "out", "o", "", "Output directory")
-	rootCmd.PersistentFlags().StringVarP(&sdkVersionString, "version", "v", "4.0.0-alpha.0+dev", "SDK Version")
+	rootCmd.PersistentFlags().StringVarP(&providerPath, "providerPath", "p", "./", "Path to the provider you want to build")
+	rootCmd.PersistentFlags().StringVarP(&rawLanguageString, "language", "l", "all", "Comma seperated list of programming languages you wish to generate SDKs for")
+	rootCmd.PersistentFlags().StringVarP(&outputPath, "out", "o", "", "Where you would like to output generated SDKs if different than {provider}/sdk")
+	rootCmd.PersistentFlags().StringVar(&schemaPath, "schema", "", "Absolute path of schema.json. Defaults to  '{provider}/provider/cmd/pulumi-resource-random/schema.json'")
+	rootCmd.PersistentFlags().StringVar(&sdkVersionString, "version", "4.0.0-alpha.0+dev", "SDK Version5")
 
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Verbose output")
 }
