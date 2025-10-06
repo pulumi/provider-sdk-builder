@@ -10,8 +10,8 @@ func (l Python) String() string {
 	return "python"
 }
 
-func (l Python) GenerateSdkRecipe(schemaPath, outputPath, version string) []string {
-	return BaseGenerateSdkCommand(schemaPath, outputPath, l.String(), version)
+func (l Python) GenerateSdkRecipe(schemaPath, outputPath, version, providerPath string) []string {
+	return BaseGenerateSdkCommand(schemaPath, outputPath, l.String(), version, providerPath)
 }
 
 func (l Python) CompileSdkRecipe(outputPath string) []string {

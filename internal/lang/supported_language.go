@@ -9,7 +9,7 @@ const ALL_LANGUAGES = "all"
 
 type Language interface {
 	String() string
-	GenerateSdkRecipe(schemaPath, outputPath, version string) []string
+	GenerateSdkRecipe(schemaPath, outputPath, version, providerPath string) []string
 	CompileSdkRecipe(outputPath string) []string
 	PackageSdkRecipie() []string
 }

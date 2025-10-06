@@ -10,8 +10,8 @@ func (l GoLang) String() string {
 	return "go"
 }
 
-func (l GoLang) GenerateSdkRecipe(schemaPath, outputPath, version string) []string {
-	return BaseGenerateSdkCommand(schemaPath, outputPath, l.String(), version)
+func (l GoLang) GenerateSdkRecipe(schemaPath, outputPath, version, providerPath string) []string {
+	return BaseGenerateSdkCommand(schemaPath, outputPath, l.String(), version, providerPath)
 }
 
 func (l GoLang) CompileSdkRecipe(outputPath string) []string {

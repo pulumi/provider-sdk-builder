@@ -10,8 +10,8 @@ func (l DotNet) String() string {
 	return "dotnet"
 }
 
-func (l DotNet) GenerateSdkRecipe(schemaPath, outputPath, version string) []string {
-	return BaseGenerateSdkCommand(schemaPath, outputPath, l.String(), version)
+func (l DotNet) GenerateSdkRecipe(schemaPath, outputPath, version, providerPath string) []string {
+	return BaseGenerateSdkCommand(schemaPath, outputPath, l.String(), version, providerPath)
 }
 
 func (l DotNet) CompileSdkRecipe(outputPath string) []string {

@@ -10,16 +10,30 @@ func TestJavaGenerateSdkRecipe(t *testing.T) {
 	schemaPath := "/schemas/gcp.json"
 	outputPath := "/output/java"
 	version := "3.2.1"
+	providerPath := "/provider/path"
 
-	result := java.GenerateSdkRecipe(schemaPath, outputPath, version)
+	result := java.GenerateSdkRecipe(schemaPath, outputPath, version, providerPath)
 
-	if len(result) != 1 {
-		t.Fatalf("expected 1 command, got %d", len(result))
+	if len(result) != 3 {
+		t.Fatalf("expected 3 commands (SDK generation + README copy + LICENSE copy), got %d", len(result))
 	}
 
-	expectedCmd := "pulumi package gen-sdk /schemas/gcp.json --language java --out /output/java --version 3.2.1"
-	if result[0] != expectedCmd {
-		t.Errorf("expected: %q\ngot:      %q", expectedCmd, result[0])
+	// Verify SDK generation command
+	expectedSdkCmd := "pulumi package gen-sdk /schemas/gcp.json --language java --out /output/java --version 3.2.1"
+	if result[0] != expectedSdkCmd {
+		t.Errorf("expected SDK command: %q\ngot:      %q", expectedSdkCmd, result[0])
+	}
+
+	// Verify README copy command
+	expectedReadmeCmd := "cp -f \"/provider/path/README.md\" \"/output/java/java/README.md\""
+	if result[1] != expectedReadmeCmd {
+		t.Errorf("expected README command: %q\ngot:      %q", expectedReadmeCmd, result[1])
+	}
+
+	// Verify LICENSE copy command
+	expectedLicenseCmd := "cp -f \"/provider/path/LICENSE\" \"/output/java/java/LICENSE\""
+	if result[2] != expectedLicenseCmd {
+		t.Errorf("expected LICENSE command: %q\ngot:      %q", expectedLicenseCmd, result[2])
 	}
 }
 

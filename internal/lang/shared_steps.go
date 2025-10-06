@@ -1,27 +1,34 @@
 package lang
 
 import (
+	"path/filepath"
 	"strings"
 )
 
 const (
 	joinCmdLineEnding             = " && \\\n"
 	pulumiPackageGenSdkCmd string = "pulumi package gen-sdk {Path} --language {Lang} --out {OutputPath} --version {Version}"
-	//copyLicenseFile        string = "cp --out {OutputPath}"
-	// TODO add license here
-	// TODO generate readme.md here
 )
 
-// BaseGenerateSdkCommand creates a shell command for generating an SDK
-// using the baseGenerateCmd template with the provided parameters
-func BaseGenerateSdkCommand(schemaPath, outputPath, language, version string) []string {
+// BaseGenerateSdkCommand creates shell commands for generating an SDK and copying README and LICENSE files
+func BaseGenerateSdkCommand(schemaPath, outputPath, language, version, providerPath string) []string {
+	// Generate SDK command
+	sdkCmd := pulumiPackageGenSdkCmd
+	sdkCmd = strings.ReplaceAll(sdkCmd, "{Path}", schemaPath)
+	sdkCmd = strings.ReplaceAll(sdkCmd, "{Lang}", language)
+	sdkCmd = strings.ReplaceAll(sdkCmd, "{OutputPath}", outputPath)
+	sdkCmd = strings.ReplaceAll(sdkCmd, "{Version}", version)
 
-	cmd := pulumiPackageGenSdkCmd
+	// Generate file copy commands
+	readmeCmd := generateCopyCommand(providerPath, "README.md", outputPath, language, "README.md")
+	licenseCmd := generateCopyCommand(providerPath, "LICENSE", outputPath, language, "LICENSE")
 
-	cmd = strings.ReplaceAll(cmd, "{Path}", schemaPath)
-	cmd = strings.ReplaceAll(cmd, "{Lang}", language)
-	cmd = strings.ReplaceAll(cmd, "{OutputPath}", outputPath)
-	cmd = strings.ReplaceAll(cmd, "{Version}", version)
+	return []string{sdkCmd, readmeCmd, licenseCmd}
+}
 
-	return []string{cmd}
+// generateCopyCommand creates a shell command to copy a file from source to destination
+func generateCopyCommand(sourcePath, sourceFile, outputPath, language, destFile string) string {
+	source := filepath.Join(sourcePath, sourceFile)
+	dest := filepath.Join(outputPath, language, destFile)
+	return "cp -f \"" + source + "\" \"" + dest + "\""
 }

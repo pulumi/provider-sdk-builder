@@ -5,7 +5,6 @@ package cmd
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/pulumi/provider-sdk-builder/internal/builder"
 	"github.com/spf13/cobra"

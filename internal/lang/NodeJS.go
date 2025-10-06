@@ -10,8 +10,8 @@ func (l NodeJS) String() string {
 	return "nodejs"
 }
 
-func (l NodeJS) GenerateSdkRecipe(schemaPath, outputPath, version string) []string {
-	return BaseGenerateSdkCommand(schemaPath, outputPath, l.String(), version)
+func (l NodeJS) GenerateSdkRecipe(schemaPath, outputPath, version, providerPath string) []string {
+	return BaseGenerateSdkCommand(schemaPath, outputPath, l.String(), version, providerPath)
 }
 
 func (l NodeJS) CompileSdkRecipe(outputPath string) []string {

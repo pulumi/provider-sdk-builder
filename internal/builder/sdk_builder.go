@@ -17,7 +17,7 @@ func GenerateBuildCmds(params BuildParameters, instructions BuildInstructions) (
 	for _, chosenLanguage := range params.RequestedLanguages {
 		// TODO to enable running this in parallel, we need to collect the commands for each language into a seprate list here
 		if instructions.GenerateSdks {
-			result = append(result, chosenLanguage.GenerateSdkRecipe(params.SchemaPath, params.OutputPath, params.VersionString)...)
+			result = append(result, chosenLanguage.GenerateSdkRecipe(params.SchemaPath, params.OutputPath, params.VersionString, params.ProviderPath)...)
 		}
 
 		if instructions.CompileSdks {
