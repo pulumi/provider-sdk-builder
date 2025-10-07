@@ -31,6 +31,7 @@ func (l GoLang) CompileSdkRecipe(outputPath string) []string {
 	return []string{compileGoCmd}
 }
 
-func (l GoLang) PackageSdkRecipie() []string {
+func (l GoLang) InstallSdkRecipe(outputPath string) []string {
+	// No install steps needed for Go
 	return []string{}
 }

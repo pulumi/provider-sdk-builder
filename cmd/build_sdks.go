@@ -6,6 +6,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/pulumi/provider-sdk-builder/internal/builder"
 	"github.com/spf13/cobra"
 )
 
@@ -15,8 +16,33 @@ var buildSdksCmd = &cobra.Command{
 	Short: "Generates, compiles, and packages SDKs for use",
 	Long:  `Accepts a schema file, tfbridge binary (if applicable), output directory, and language to generate, compile, and package the SDK for use.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("buildSdks called")
+		buildSdk()
 	},
+}
+
+var (
+	buildAllInstructions = builder.BuildInstructions{GenerateSdks: true, CompileSdks: true}
+)
+
+func buildSdk() error {
+
+	if verbose {
+		fmt.Printf("Building SDKs for provider found at Path: %s\nLanguages: %v\n", providerPath, rawLanguageString)
+	}
+
+	params, err := builder.ParseInputs(providerPath, rawLanguageString, schemaPath, outputPath, sdkVersionString)
+	if err != nil {
+		return err
+	}
+
+	commands, err := builder.GenerateBuildCmds(params, buildAllInstructions)
+	if err != nil {
+		return err
+	}
+
+	output, err := builder.ExecuteCommandSequence(commands, verbose)
+	fmt.Print(output)
+	return err
 }
 
 func init() {

@@ -34,6 +34,7 @@ func (l Java) CompileSdkRecipe(outputPath string) []string {
 	return []string{compileJavaCmd}
 }
 
-func (l Java) PackageSdkRecipie() []string {
+func (l Java) InstallSdkRecipe(outputPath string) []string {
+	// No install steps needed for Java
 	return []string{}
 }

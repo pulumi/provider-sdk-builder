@@ -78,3 +78,27 @@ func TestNodeJSCompileSdkRecipe(t *testing.T) {
 		t.Errorf("expected {OutputPath} to be substituted, but found it in: %q", cmd)
 	}
 }
+
+func TestNodeJSInstallSdkRecipe(t *testing.T) {
+	nodejs := NodeJS{}
+	outputPath := "/project/output"
+
+	result := nodejs.InstallSdkRecipe(outputPath)
+
+	if len(result) != 1 {
+		t.Fatalf("expected 1 command, got %d", len(result))
+	}
+
+	cmd := result[0]
+
+	// Should contain yarn link command with correct path
+	expected := "yarn link --cwd /project/output/nodejs/bin"
+	if cmd != expected {
+		t.Errorf("expected command: %q\ngot:      %q", expected, cmd)
+	}
+
+	// Should have output path substituted (not contain template)
+	if strings.Contains(cmd, "{OutputPath}") {
+		t.Errorf("expected {OutputPath} to be substituted, but found it in: %q", cmd)
+	}
+}

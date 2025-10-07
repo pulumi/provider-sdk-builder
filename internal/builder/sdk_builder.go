@@ -5,9 +5,9 @@ import (
 )
 
 type BuildInstructions struct {
-	GenerateSdks      bool
-	CompileSdks       bool
-	PackageForRelease bool
+	GenerateSdks bool
+	CompileSdks  bool
+	InstallSdks  bool
 }
 
 func GenerateBuildCmds(params BuildParameters, instructions BuildInstructions) ([]string, error) {
@@ -24,8 +24,8 @@ func GenerateBuildCmds(params BuildParameters, instructions BuildInstructions) (
 			result = append(result, chosenLanguage.CompileSdkRecipe(params.OutputPath)...)
 		}
 
-		if instructions.PackageForRelease {
-			result = append(result, chosenLanguage.PackageSdkRecipie()...)
+		if instructions.InstallSdks {
+			result = append(result, chosenLanguage.InstallSdkRecipe(params.OutputPath)...)
 		}
 	}
 

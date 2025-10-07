@@ -69,3 +69,50 @@ func TestDotNetCompileSdkRecipe(t *testing.T) {
 		t.Errorf("expected {OutputPath} to be substituted, but found it in: %q", cmd)
 	}
 }
+
+func TestDotNetInstallSdkRecipe(t *testing.T) {
+	dotnet := DotNet{}
+	outputPath := "/build/dotnet"
+
+	result := dotnet.InstallSdkRecipe(outputPath)
+
+	if len(result) != 1 {
+		t.Fatalf("expected 1 command, got %d", len(result))
+	}
+
+	cmd := result[0]
+
+	// Should contain mkdir for nuget directory
+	if !strings.Contains(cmd, "mkdir -p /build/dotnet/../nuget") {
+		t.Errorf("expected command to contain 'mkdir -p /build/dotnet/../nuget', got: %q", cmd)
+	}
+
+	// Should contain find command to copy .nupkg files
+	if !strings.Contains(cmd, "find /build/dotnet/dotnet/bin -name '*.nupkg'") {
+		t.Errorf("expected command to contain find for .nupkg files, got: %q", cmd)
+	}
+
+	// Should contain copy command
+	if !strings.Contains(cmd, "cp -p") {
+		t.Errorf("expected command to contain 'cp -p', got: %q", cmd)
+	}
+
+	// Should contain dotnet nuget commands
+	if !strings.Contains(cmd, "dotnet nuget list source") {
+		t.Errorf("expected command to contain 'dotnet nuget list source', got: %q", cmd)
+	}
+
+	if !strings.Contains(cmd, "dotnet nuget add source") {
+		t.Errorf("expected command to contain 'dotnet nuget add source', got: %q", cmd)
+	}
+
+	// Should contain command joining
+	if !strings.Contains(cmd, " && \\\n") {
+		t.Errorf("expected command to contain command joiner ' && \\\\\\n', got: %q", cmd)
+	}
+
+	// Should have output path substituted (not contain template)
+	if strings.Contains(cmd, "{OutputPath}") {
+		t.Errorf("expected {OutputPath} to be substituted, but found it in: %q", cmd)
+	}
+}

@@ -46,6 +46,7 @@ func (l Python) CompileSdkRecipe(outputPath string) []string {
 	return []string{compilePythonCmd}
 }
 
-func (l Python) PackageSdkRecipie() []string {
+func (l Python) InstallSdkRecipe(outputPath string) []string {
+	// No install steps needed for Python
 	return []string{}
 }

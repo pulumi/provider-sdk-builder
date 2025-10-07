@@ -73,3 +73,15 @@ func TestPythonCompileSdkRecipe(t *testing.T) {
 		t.Errorf("expected {OutputPath} to be substituted, but found it in: %q", cmd)
 	}
 }
+
+func TestPythonInstallSdkRecipe(t *testing.T) {
+	python := Python{}
+	outputPath := "/build/output"
+
+	result := python.InstallSdkRecipe(outputPath)
+
+	// Python should return empty slice (no install steps needed)
+	if len(result) != 0 {
+		t.Fatalf("expected 0 commands for Python install (no-op), got %d", len(result))
+	}
+}

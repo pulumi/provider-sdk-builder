@@ -35,6 +35,9 @@ func (l NodeJS) CompileSdkRecipe(outputPath string) []string {
 	return []string{compileNodeCmd}
 }
 
-func (l NodeJS) PackageSdkRecipie() []string {
-	return []string{}
+func (l NodeJS) InstallSdkRecipe(outputPath string) []string {
+	const installNodeCmd = "yarn link --cwd {OutputPath}/nodejs/bin"
+
+	cmd := strings.ReplaceAll(installNodeCmd, "{OutputPath}", outputPath)
+	return []string{cmd}
 }
