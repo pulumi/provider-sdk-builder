@@ -1,21 +1,34 @@
 package lang
 
 import (
+	"path/filepath"
 	"strings"
 )
 
 const (
-	baseGenerateSdkCmd string = "{Path}/bin/pulumi-tfgen-{ProviderName} {Lang} --out {OutputPath}/{Lang}/"
+	joinCmdLineEnding             = " && \\\n"
+	pulumiPackageGenSdkCmd string = "pulumi package gen-sdk {Path} --language {Lang} --out {OutputPath} --version {Version}"
 )
 
-// BaseGenerateSdkCommand creates a shell command for generating an SDK
-// using the baseGenerateCmd template with the provided parameters
-func BaseGenerateSdkCommand(providerName, path, outputPath, langString string) []string {
-	cmd := baseGenerateSdkCmd
-	cmd = strings.ReplaceAll(cmd, "{ProviderName}", providerName)
-	cmd = strings.ReplaceAll(cmd, "{Path}", path)
-	cmd = strings.ReplaceAll(cmd, "{OutputPath}", outputPath)
-	cmd = strings.ReplaceAll(cmd, "{Lang}", langString)
+// BaseGenerateSdkCommand creates shell commands for generating an SDK and copying README and LICENSE files
+func BaseGenerateSdkCommand(schemaPath, outputPath, language, version, providerPath string) []string {
+	// Generate SDK command
+	sdkCmd := pulumiPackageGenSdkCmd
+	sdkCmd = strings.ReplaceAll(sdkCmd, "{Path}", schemaPath)
+	sdkCmd = strings.ReplaceAll(sdkCmd, "{Lang}", language)
+	sdkCmd = strings.ReplaceAll(sdkCmd, "{OutputPath}", outputPath)
+	sdkCmd = strings.ReplaceAll(sdkCmd, "{Version}", version)
 
-	return []string{cmd}
+	// Generate file copy commands
+	readmeCmd := generateCopyCommand(providerPath, "README.md", outputPath, language, "README.md")
+	licenseCmd := generateCopyCommand(providerPath, "LICENSE", outputPath, language, "LICENSE")
+
+	return []string{sdkCmd, readmeCmd, licenseCmd}
+}
+
+// generateCopyCommand creates a shell command to copy a file from source to destination
+func generateCopyCommand(sourcePath, sourceFile, outputPath, language, destFile string) string {
+	source := filepath.Join(sourcePath, sourceFile)
+	dest := filepath.Join(outputPath, language, destFile)
+	return "cp -f \"" + source + "\" \"" + dest + "\""
 }

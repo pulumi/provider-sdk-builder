@@ -5,7 +5,9 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
+	"github.com/pulumi/provider-sdk-builder/internal/builder"
 	"github.com/spf13/cobra"
 )
 
@@ -15,26 +17,33 @@ var buildSdksCmd = &cobra.Command{
 	Short: "Generates, compiles, and packages SDKs for use",
 	Long:  `Accepts a schema file, tfbridge binary (if applicable), output directory, and language to generate, compile, and package the SDK for use.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("buildSdks called")
+		buildSdk()
 	},
 }
 
 var (
-	outDir string
+	buildAllInstructions = builder.BuildInstructions{GenerateSdks: true, CompileSdks: true}
 )
 
+func buildSdk() error {
+
+	if verbose {
+		fmt.Printf("Building SDKs for provider found at Path: %s\nLanguages: %v\n", providerPath, rawLanguageString)
+	}
+
+	params, err := builder.ParseInputs(providerPath, providerName, rawLanguageString, schemaPath, outputPath, sdkVersionString)
+	if err != nil {
+		return err
+	}
+
+	commands, err := builder.GenerateBuildCmds(params, buildAllInstructions)
+	if err != nil {
+		return err
+	}
+
+	return builder.ExecuteCommandSequence(commands, verbose, os.Stdout)
+}
+
 func init() {
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// buildSdksCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// buildSdksCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	buildSdksCmd.Flags().StringVarP(&outDir, "out", "o", "./sdk", "Output directory")
-
 	rootCmd.AddCommand(buildSdksCmd)
 }

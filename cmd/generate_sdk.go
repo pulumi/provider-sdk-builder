@@ -5,7 +5,7 @@ package cmd
 
 import (
 	"fmt"
-	"strings"
+	"os"
 
 	"github.com/spf13/cobra"
 
@@ -20,22 +20,31 @@ var generateSdkCmd = &cobra.Command{
 	Outputs will be stored in the form /sdk/{lang} in the directory specified by output path`,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		generateRawSdk(cmd, args)
+		generateRawSdk()
 	},
 }
 
-func generateRawSdk(cmd *cobra.Command, args []string) error {
+var (
+	generateOnlyInstructions = builder.BuildInstructions{GenerateSdks: true}
+)
 
-	//TODO put in verbose flag?
-	fmt.Printf("Generating SDK for provider %s\n SchemaPath: %s\n OutputPath: %s\n Languages: %v\n", providerName, schemaPath, outputPath, language)
-	commands, err := builder.GenerateSdksShellCommands(providerName, schemaPath, outputPath, language)
+func generateRawSdk() error {
+
+	if verbose {
+		fmt.Printf("Generating the SDKs for provider found at Path: %s\nLanguages: %v\n", providerPath, rawLanguageString)
+	}
+
+	params, err := builder.ParseInputs(providerPath, providerName, rawLanguageString, schemaPath, outputPath, sdkVersionString)
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Prepared the following shell commands to run:\n\n%s\n\n", strings.Join(commands, "\n"))
-	output, err := builder.ExecuteCommandSequence(commands)
-	fmt.Print(output)
-	return err
+
+	commands, err := builder.GenerateBuildCmds(params, generateOnlyInstructions)
+	if err != nil {
+		return err
+	}
+
+	return builder.ExecuteCommandSequence(commands, verbose, os.Stdout)
 }
 
 func init() {

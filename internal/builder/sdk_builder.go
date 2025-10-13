@@ -1,30 +1,37 @@
 package builder
 
 import (
-	"github.com/pulumi/provider-sdk-builder/internal/lang"
+	"errors"
 )
 
-func BuildSdks() error {
-	return nil
+type BuildInstructions struct {
+	GenerateSdks bool
+	CompileSdks  bool
+	InstallSdks  bool
 }
 
-func GenerateSdksShellCommands(providerName, schemaPath, outputPath, rawLanguageString string) ([]string, error) {
-
-	languages, err := lang.ParseRequestedLanguages(rawLanguageString)
-	if err != nil {
-		return []string{}, err
-	}
-	return buildGenerateShellCommands(providerName, schemaPath, outputPath, languages), nil
-}
-
-func buildGenerateShellCommands(providerName, schemaPath, outputPath string, languages []lang.Language) []string {
+func GenerateBuildCmds(params BuildParameters, instructions BuildInstructions) ([]string, error) {
 
 	var result []string
 
-	for _, chosenLanguage := range languages {
-		commands := chosenLanguage.GenerateSdkRecipe(providerName, schemaPath, outputPath)
-		result = append(result, commands...)
+	for _, chosenLanguage := range params.RequestedLanguages {
+		// TODO to enable running this in parallel, we need to collect the commands for each language into a seprate list here
+		if instructions.GenerateSdks {
+			result = append(result, chosenLanguage.GenerateSdkRecipe(params.SchemaPath, params.OutputPath, params.VersionString, params.ProviderPath)...)
+		}
+
+		if instructions.CompileSdks {
+			result = append(result, chosenLanguage.CompileSdkRecipe(params.OutputPath)...)
+		}
+
+		if instructions.InstallSdks {
+			result = append(result, chosenLanguage.InstallSdkRecipe(params.OutputPath)...)
+		}
 	}
 
-	return result
+	if len(result) == 0 {
+		return result, errors.New("Empty list of commands generated from GenerateBuildCommand, aborting build")
+	}
+
+	return result, nil
 }
