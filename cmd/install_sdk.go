@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/pulumi/provider-sdk-builder/internal/builder"
 	"github.com/spf13/cobra"
@@ -37,7 +38,7 @@ func installSdk() error {
 		fmt.Printf("Installing the SDKs found at Path: %s\nLanguages: %v\n", providerPath, rawLanguageString)
 	}
 
-	params, err := builder.ParseInputs(providerPath, rawLanguageString, schemaPath, outputPath, sdkVersionString)
+	params, err := builder.ParseInputs(providerPath, providerName, rawLanguageString, schemaPath, outputPath, sdkVersionString)
 	if err != nil {
 		return err
 	}
@@ -47,9 +48,7 @@ func installSdk() error {
 		return err
 	}
 
-	output, err := builder.ExecuteCommandSequence(commands, verbose)
-	fmt.Print(output)
-	return err
+	return builder.ExecuteCommandSequence(commands, verbose, os.Stdout)
 }
 
 func init() {

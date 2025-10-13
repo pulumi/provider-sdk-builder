@@ -18,7 +18,7 @@ func (l GoLang) CompileSdkRecipe(outputPath string) []string {
 	// Named individual commands for ease of comprehension
 	const (
 		cdToSdkDir        = "cd {OutputPath}/"
-		goListAndBuildCmd = "go list \"$(grep -e \"^module\" go.mod | cut -d ' ' -f 2)/go/...\" | xargs -I {} bash -c 'go build {} && go clean -i {}'"
+		goListAndBuildCmd = `go list "$(grep -e "^module" go.mod | cut -d ' ' -f 2)/go/..." | xargs -I {} bash -c 'go build {} && go clean -i {}'`
 	)
 
 	var compileGoRecipie = []string{

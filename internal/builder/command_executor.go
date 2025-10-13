@@ -2,34 +2,32 @@ package builder
 
 import (
 	"fmt"
+	"io"
 	"os/exec"
-	"strings"
 )
 
-func ExecuteCommandSequence(commands []string, verbose bool) (output string, err error) {
-	var outputBuilder strings.Builder
-
+func ExecuteCommandSequence(commands []string, verbose bool, writer io.Writer) error {
 	for index, command := range commands {
 		if verbose {
-			outputBuilder.WriteString(fmt.Sprintf("=== Command %d ===\n", index+1))
-			outputBuilder.WriteString(command)
-			outputBuilder.WriteString(fmt.Sprintf("\n===  Command %d ===\n", index+1))
-			outputBuilder.WriteString("\n")
+			fmt.Fprintf(writer, "=== Command %d ===\n", index+1)
+			fmt.Fprintf(writer, "%s\n", command)
+			fmt.Fprintf(writer, "=== Command %d ===\n", index+1)
+			fmt.Fprintf(writer, "\n")
 		}
 
 		// Execute the command using shell
 		cmd := exec.Command("/bin/sh", "-c", command)
-		output, err := cmd.CombinedOutput()
-		stringOutput := strings.TrimSpace(string(output))
-		outputBuilder.WriteString(stringOutput)
-		outputBuilder.WriteString("\n")
+		cmd.Stdout = writer
+		cmd.Stderr = writer
 
+		err := cmd.Run()
 		if err != nil {
-			return outputBuilder.String(), fmt.Errorf("%q FAILED: %w", command, err)
+			return fmt.Errorf("%q FAILED: %w", command, err)
 		}
+
 		if verbose {
-			outputBuilder.WriteString("\n")
+			fmt.Fprintf(writer, "\n")
 		}
 	}
-	return outputBuilder.String(), nil
+	return nil
 }

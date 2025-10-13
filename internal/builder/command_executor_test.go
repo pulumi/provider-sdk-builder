@@ -1,6 +1,7 @@
 package builder
 
 import (
+	"bytes"
 	"strings"
 	"testing"
 )
@@ -82,8 +83,11 @@ func TestExecuteCommandSequence(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			// Create a buffer to capture output
+			var buf bytes.Buffer
+
 			// Execute the sequence
-			output, err := ExecuteCommandSequence(tt.commands, true)
+			err := ExecuteCommandSequence(tt.commands, true, &buf)
 
 			// Check error expectation
 			if tt.expectError && err == nil {
@@ -94,6 +98,7 @@ func TestExecuteCommandSequence(t *testing.T) {
 			}
 
 			// Check output
+			output := buf.String()
 			if !tt.checkOutput(output) {
 				t.Errorf("output check failed. Got output: %q", output)
 			}
@@ -104,12 +109,14 @@ func TestExecuteCommandSequence(t *testing.T) {
 func TestExecuteCommandSequenceSingleCommand(t *testing.T) {
 	commands := []string{"echo 'test output'"}
 
-	output, err := ExecuteCommandSequence(commands, true)
+	var buf bytes.Buffer
+	err := ExecuteCommandSequence(commands, true, &buf)
 
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
 
+	output := buf.String()
 	if !strings.Contains(output, "test output") {
 		t.Errorf("expected output to contain 'test output', got: %q", output)
 	}
@@ -126,11 +133,14 @@ func TestExecuteCommandSequenceErrorHandling(t *testing.T) {
 		"echo 'after error'", // This should not execute
 	}
 
-	output, err := ExecuteCommandSequence(commands, true)
+	var buf bytes.Buffer
+	err := ExecuteCommandSequence(commands, true, &buf)
 
 	if err == nil {
 		t.Error("expected error but got none")
 	}
+
+	output := buf.String()
 
 	// Should contain output from the first command
 	if !strings.Contains(output, "before error") {
@@ -151,11 +161,14 @@ func TestExecuteCommandSequenceErrorHandling(t *testing.T) {
 func TestExecuteCommandSequenceOutputFormatting(t *testing.T) {
 	commands := []string{"echo 'line1'", "echo 'line2'"}
 
-	output, err := ExecuteCommandSequence(commands, true)
+	var buf bytes.Buffer
+	err := ExecuteCommandSequence(commands, true, &buf)
 
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
+
+	output := buf.String()
 
 	// Verify command headers are present
 	if !strings.Contains(output, "=== Command 1 ===") {

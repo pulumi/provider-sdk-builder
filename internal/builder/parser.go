@@ -1,6 +1,8 @@
 package builder
 
 import (
+	"strings"
+
 	"github.com/pulumi/provider-sdk-builder/internal/lang"
 )
 
@@ -13,11 +15,11 @@ type BuildParameters struct {
 }
 
 const (
-	defaultSchemaPath = "provider/cmd/pulumi-resource-random/schema.json"
+	schemaPathPattern = "provider/cmd/pulumi-resource-{ProviderName}/schema.json"
 	defaultOutputPath = "sdk"
 )
 
-func ParseInputs(providerPath, rawRequestedLanguages, schemaPath, outputPath, versionString string) (BuildParameters, error) {
+func ParseInputs(providerPath, providerName, rawRequestedLanguages, schemaPath, outputPath, versionString string) (BuildParameters, error) {
 
 	languages, err := lang.ParseRequestedLanguages(rawRequestedLanguages)
 
@@ -26,7 +28,9 @@ func ParseInputs(providerPath, rawRequestedLanguages, schemaPath, outputPath, ve
 	}
 
 	if schemaPath == "" {
-		schemaPath = providerPath + defaultSchemaPath
+		// Substitute {ProviderName} in the pattern with the actual provider name
+		pattern := strings.ReplaceAll(schemaPathPattern, "{ProviderName}", providerName)
+		schemaPath = providerPath + pattern
 	}
 
 	if outputPath == "" {

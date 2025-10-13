@@ -23,6 +23,7 @@ SDKs require a schema file. Terraform backed providers also require a tfbridge b
 
 var (
 	providerPath      string
+	providerName      string
 	rawLanguageString string
 	outputPath        string
 	sdkVersionString  string
@@ -44,10 +45,14 @@ func init() {
 
 	// Global flags used in multiple commands
 	rootCmd.PersistentFlags().StringVarP(&providerPath, "providerPath", "p", "./", "Path to the provider you want to build")
+	rootCmd.PersistentFlags().StringVarP(&providerName, "providerName", "n", "", "Name of the provider (required)")
 	rootCmd.PersistentFlags().StringVarP(&rawLanguageString, "language", "l", "all", "Comma seperated list of programming languages you wish to generate SDKs for")
 	rootCmd.PersistentFlags().StringVarP(&outputPath, "out", "o", "", "Where you would like to output generated SDKs if different than {provider}/sdk")
 	rootCmd.PersistentFlags().StringVar(&schemaPath, "schema", "", "Absolute path of schema.json. Defaults to  '{provider}/provider/cmd/pulumi-resource-random/schema.json'")
 	rootCmd.PersistentFlags().StringVar(&sdkVersionString, "version", "4.0.0-alpha.0+dev", "SDK Version5")
 
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Verbose output")
+
+	// Mark providerName as required
+	rootCmd.MarkPersistentFlagRequired("providerName")
 }
