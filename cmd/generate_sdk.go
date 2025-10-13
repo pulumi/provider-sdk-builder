@@ -30,7 +30,7 @@ var (
 
 func generateRawSdk() error {
 
-	if verbose {
+	if !quiet {
 		fmt.Printf("Generating the SDKs for provider found at Path: %s\nLanguages: %v\n", providerPath, rawLanguageString)
 	}
 
@@ -44,7 +44,7 @@ func generateRawSdk() error {
 		return err
 	}
 
-	return builder.ExecuteCommandSequence(commands, verbose, os.Stdout)
+	return builder.ExecuteCommandSequence(commands, quiet, os.Stdout)
 }
 
 func init() {

@@ -34,7 +34,7 @@ var (
 
 func installSdk() error {
 
-	if verbose {
+	if !quiet {
 		fmt.Printf("Installing the SDKs found at Path: %s\nLanguages: %v\n", providerPath, rawLanguageString)
 	}
 
@@ -48,7 +48,7 @@ func installSdk() error {
 		return err
 	}
 
-	return builder.ExecuteCommandSequence(commands, verbose, os.Stdout)
+	return builder.ExecuteCommandSequence(commands, quiet, os.Stdout)
 }
 
 func init() {

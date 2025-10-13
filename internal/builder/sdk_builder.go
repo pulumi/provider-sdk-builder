@@ -21,7 +21,7 @@ func GenerateBuildCmds(params BuildParameters, instructions BuildInstructions) (
 		}
 
 		if instructions.CompileSdks {
-			result = append(result, chosenLanguage.CompileSdkRecipe(params.OutputPath)...)
+			result = append(result, chosenLanguage.CompileSdkRecipe(params.OutputPath, params.ProviderPath)...)
 		}
 
 		if instructions.InstallSdks {

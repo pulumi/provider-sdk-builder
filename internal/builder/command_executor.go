@@ -6,9 +6,9 @@ import (
 	"os/exec"
 )
 
-func ExecuteCommandSequence(commands []string, verbose bool, writer io.Writer) error {
+func ExecuteCommandSequence(commands []string, quiet bool, writer io.Writer) error {
 	for index, command := range commands {
-		if verbose {
+		if !quiet {
 			fmt.Fprintf(writer, "=== Command %d ===\n", index+1)
 			fmt.Fprintf(writer, "%s\n", command)
 			fmt.Fprintf(writer, "=== Command %d ===\n", index+1)
@@ -25,7 +25,7 @@ func ExecuteCommandSequence(commands []string, verbose bool, writer io.Writer) e
 			return fmt.Errorf("%q FAILED: %w", command, err)
 		}
 
-		if verbose {
+		if !quiet {
 			fmt.Fprintf(writer, "\n")
 		}
 	}

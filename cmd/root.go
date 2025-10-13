@@ -29,7 +29,7 @@ var (
 	sdkVersionString  string
 	schemaPath        string
 
-	verbose bool
+	quiet bool
 )
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -51,8 +51,6 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&schemaPath, "schema", "", "Absolute path of schema.json. Defaults to  '{provider}/provider/cmd/pulumi-resource-random/schema.json'")
 	rootCmd.PersistentFlags().StringVar(&sdkVersionString, "version", "4.0.0-alpha.0+dev", "SDK Version5")
 
-	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Verbose output")
-
-	// Mark providerName as required
 	rootCmd.MarkPersistentFlagRequired("providerName")
+	rootCmd.PersistentFlags().BoolVarP(&quiet, "quiet", "q", false, "Quiet output (hide command details)")
 }

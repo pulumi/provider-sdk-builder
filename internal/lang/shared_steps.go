@@ -23,7 +23,11 @@ func BaseGenerateSdkCommand(schemaPath, outputPath, language, version, providerP
 	readmeCmd := generateCopyCommand(providerPath, "README.md", outputPath, language, "README.md")
 	licenseCmd := generateCopyCommand(providerPath, "LICENSE", outputPath, language, "LICENSE")
 
-	return []string{sdkCmd, readmeCmd, licenseCmd}
+	// Generate version.txt file command
+	versionFilePath := filepath.Join(outputPath, language, "version.txt")
+	versionCmd := "echo \"" + version + "\" > \"" + versionFilePath + "\""
+
+	return []string{sdkCmd, readmeCmd, licenseCmd, versionCmd}
 }
 
 // generateCopyCommand creates a shell command to copy a file from source to destination
