@@ -32,7 +32,7 @@ var (
 
 func compileSdk() error {
 
-	if verbose {
+	if !quiet {
 		fmt.Printf("Compiling the SDKs found at Path: %s\nLanguages: %v\n", providerPath, rawLanguageString)
 	}
 
@@ -46,7 +46,7 @@ func compileSdk() error {
 		return err
 	}
 
-	return builder.ExecuteCommandSequence(commands, verbose, os.Stdout)
+	return builder.ExecuteCommandSequence(commands, quiet, os.Stdout)
 }
 
 func init() {

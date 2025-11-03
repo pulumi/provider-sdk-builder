@@ -1,8 +1,21 @@
 package lang
 
 import (
-	"strings"
 	"testing"
+)
+
+const (
+	// expectedPythonGenerateCommandCount is the number of commands returned by GenerateSdkRecipe:
+	// 1. SDK generation, 2. README copy, 3. LICENSE copy, 4. version.txt creation
+	expectedPythonGenerateCommandCount = 4
+
+	// expectedPythonCompileCommandCount is the number of commands returned by CompileSdkRecipe:
+	// 1. pack-sdk command
+	expectedPythonCompileCommandCount = 1
+
+	// expectedPythonInstallCommandCount is the number of commands returned by InstallSdkRecipe:
+	// 0 (Python doesn't need install steps)
+	expectedPythonInstallCommandCount = 0
 )
 
 func TestPythonGenerateSdkRecipe(t *testing.T) {
@@ -14,8 +27,8 @@ func TestPythonGenerateSdkRecipe(t *testing.T) {
 
 	result := python.GenerateSdkRecipe(schemaPath, outputPath, version, providerPath)
 
-	if len(result) != 3 {
-		t.Fatalf("expected 3 commands (SDK generation + README copy + LICENSE copy), got %d", len(result))
+	if len(result) != expectedPythonGenerateCommandCount {
+		t.Fatalf("expected %d commands (SDK generation + README copy + LICENSE copy + version.txt), got %d", expectedPythonGenerateCommandCount, len(result))
 	}
 
 	// Verify SDK generation command
@@ -35,42 +48,31 @@ func TestPythonGenerateSdkRecipe(t *testing.T) {
 	if result[2] != expectedLicenseCmd {
 		t.Errorf("expected LICENSE command: %q\ngot:      %q", expectedLicenseCmd, result[2])
 	}
+
+	// Verify version.txt creation command
+	expectedVersionCmd := "echo \"2.1.0\" > \"/build/sdks/python/version.txt\""
+	if result[3] != expectedVersionCmd {
+		t.Errorf("expected version command: %q\ngot:      %q", expectedVersionCmd, result[3])
+	}
 }
 
 func TestPythonCompileSdkRecipe(t *testing.T) {
 	python := Python{}
 	outputPath := "/build/output"
+	providerPath := "/provider/path"
 
-	result := python.CompileSdkRecipe(outputPath)
+	result := python.CompileSdkRecipe(outputPath, providerPath)
 
-	if len(result) != 1 {
-		t.Fatalf("expected 1 command, got %d", len(result))
+	if len(result) != expectedPythonCompileCommandCount {
+		t.Fatalf("expected %d command, got %d", expectedPythonCompileCommandCount, len(result))
 	}
 
+	// Verify the command uses pulumi package pack-sdk
 	cmd := result[0]
+	expected := "cd /build/output/python && pulumi package pack-sdk python ."
 
-	// Should contain the cd command with output path
-	if !strings.Contains(cmd, "cd /build/output/python") {
-		t.Errorf("expected command to contain 'cd /build/output/python', got: %q", cmd)
-	}
-
-	// Should contain key Python build commands
-	if !strings.Contains(cmd, "python3 -m venv venv") {
-		t.Errorf("expected command to contain 'python3 -m venv venv', got: %q", cmd)
-	}
-
-	if !strings.Contains(cmd, "python -m build .") {
-		t.Errorf("expected command to contain 'python -m build .', got: %q", cmd)
-	}
-
-	// Should contain command joining
-	if !strings.Contains(cmd, " && \\\n") {
-		t.Errorf("expected command to contain command joiner ' && \\\\\\n', got: %q", cmd)
-	}
-
-	// Should have output path substituted (not contain template)
-	if strings.Contains(cmd, "{OutputPath}") {
-		t.Errorf("expected {OutputPath} to be substituted, but found it in: %q", cmd)
+	if cmd != expected {
+		t.Errorf("expected command: %q\ngot:      %q", expected, cmd)
 	}
 }
 
@@ -81,7 +83,7 @@ func TestPythonInstallSdkRecipe(t *testing.T) {
 	result := python.InstallSdkRecipe(outputPath)
 
 	// Python should return empty slice (no install steps needed)
-	if len(result) != 0 {
-		t.Fatalf("expected 0 commands for Python install (no-op), got %d", len(result))
+	if len(result) != expectedPythonInstallCommandCount {
+		t.Fatalf("expected %d commands for Python install (no-op), got %d", expectedPythonInstallCommandCount, len(result))
 	}
 }

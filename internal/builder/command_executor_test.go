@@ -6,6 +6,10 @@ import (
 	"testing"
 )
 
+const (
+	verboseLogging = false // Use verbose logging (headers and separators) in tests
+)
+
 func TestExecuteCommandSequence(t *testing.T) {
 	tests := []struct {
 		name        string
@@ -87,7 +91,7 @@ func TestExecuteCommandSequence(t *testing.T) {
 			var buf bytes.Buffer
 
 			// Execute the sequence
-			err := ExecuteCommandSequence(tt.commands, true, &buf)
+			err := ExecuteCommandSequence(tt.commands, verboseLogging, &buf)
 
 			// Check error expectation
 			if tt.expectError && err == nil {
@@ -110,7 +114,7 @@ func TestExecuteCommandSequenceSingleCommand(t *testing.T) {
 	commands := []string{"echo 'test output'"}
 
 	var buf bytes.Buffer
-	err := ExecuteCommandSequence(commands, true, &buf)
+	err := ExecuteCommandSequence(commands, verboseLogging, &buf)
 
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
@@ -134,7 +138,7 @@ func TestExecuteCommandSequenceErrorHandling(t *testing.T) {
 	}
 
 	var buf bytes.Buffer
-	err := ExecuteCommandSequence(commands, true, &buf)
+	err := ExecuteCommandSequence(commands, verboseLogging, &buf)
 
 	if err == nil {
 		t.Error("expected error but got none")
@@ -162,7 +166,7 @@ func TestExecuteCommandSequenceOutputFormatting(t *testing.T) {
 	commands := []string{"echo 'line1'", "echo 'line2'"}
 
 	var buf bytes.Buffer
-	err := ExecuteCommandSequence(commands, true, &buf)
+	err := ExecuteCommandSequence(commands, verboseLogging, &buf)
 
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)

@@ -5,6 +5,12 @@ import (
 	"testing"
 )
 
+const (
+	// expectedGenerateSdkCommandCount is the number of commands returned by BaseGenerateSdkCommand:
+	// 1. SDK generation, 2. README copy, 3. LICENSE copy, 4. version.txt creation
+	expectedGenerateSdkCommandCount = 4
+)
+
 func TestBaseGenerateSdkCommand(t *testing.T) {
 	tests := []struct {
 		name         string
@@ -48,8 +54,8 @@ func TestBaseGenerateSdkCommand(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			result := BaseGenerateSdkCommand(tt.schemaPath, tt.outputPath, tt.language, tt.version, tt.providerPath)
 
-			if len(result) != 3 {
-				t.Errorf("expected 3 commands (SDK generation + README copy + LICENSE copy), got %d", len(result))
+			if len(result) != expectedGenerateSdkCommandCount {
+				t.Errorf("expected %d commands (SDK generation + README copy + LICENSE copy + version.txt), got %d", expectedGenerateSdkCommandCount, len(result))
 				return
 			}
 
@@ -69,6 +75,12 @@ func TestBaseGenerateSdkCommand(t *testing.T) {
 			if result[2] != expectedLicense {
 				t.Errorf("LICENSE command mismatch:\nexpected: %q\ngot:      %q", expectedLicense, result[2])
 			}
+
+			// Check version.txt creation command
+			expectedVersion := "echo \"" + tt.version + "\" > \"" + tt.outputPath + "/" + tt.language + "/version.txt\""
+			if result[3] != expectedVersion {
+				t.Errorf("version.txt command mismatch:\nexpected: %q\ngot:      %q", expectedVersion, result[3])
+			}
 		})
 	}
 }
@@ -82,8 +94,8 @@ func TestBaseGenerateSdkCommandDotNet(t *testing.T) {
 
 	result := BaseGenerateSdkCommand(schemaPath, outputPath, language, version, providerPath)
 
-	if len(result) != 3 {
-		t.Fatalf("expected 3 commands (SDK generation + README copy + LICENSE copy), got %d", len(result))
+	if len(result) != expectedGenerateSdkCommandCount {
+		t.Fatalf("expected %d commands (SDK generation + README copy + LICENSE copy + version.txt), got %d", expectedGenerateSdkCommandCount, len(result))
 	}
 
 	expectedSdkCmd := "pulumi package gen-sdk /test/schema.json --language dotnet --out /test/output --version 1.5.2"
@@ -106,5 +118,11 @@ func TestBaseGenerateSdkCommandDotNet(t *testing.T) {
 	expectedLicenseCmd := "cp -f \"/test/provider/LICENSE\" \"/test/output/dotnet/LICENSE\""
 	if result[2] != expectedLicenseCmd {
 		t.Errorf("expected LICENSE command: %q\ngot:      %q", expectedLicenseCmd, result[2])
+	}
+
+	// Verify version.txt creation command
+	expectedVersionCmd := "echo \"1.5.2\" > \"/test/output/dotnet/version.txt\""
+	if result[3] != expectedVersionCmd {
+		t.Errorf("expected version command: %q\ngot:      %q", expectedVersionCmd, result[3])
 	}
 }
