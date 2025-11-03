@@ -12,6 +12,7 @@ const (
 
 // BaseGenerateSdkCommand creates shell commands for generating an SDK and copying README and LICENSE files
 func BaseGenerateSdkCommand(schemaPath, outputPath, language, version, providerPath string) []string {
+
 	// Generate SDK command
 	sdkCmd := pulumiPackageGenSdkCmd
 	sdkCmd = strings.ReplaceAll(sdkCmd, "{Path}", schemaPath)
