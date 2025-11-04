@@ -2,7 +2,10 @@ module github.com/pulumi/provider-sdk-builder
 
 go 1.24.5
 
-require github.com/spf13/cobra v1.10.1
+require (
+	github.com/pulumi/pulumi-terraform-bridge/v3 v3.116.0
+	github.com/spf13/cobra v1.10.1
+)
 
 require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
