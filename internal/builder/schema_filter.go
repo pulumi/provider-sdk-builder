@@ -20,7 +20,7 @@ func GetLanguageSchema(schemaPath, language, outputPath string) (string, error) 
 	languageSchemasDir := filepath.Join(outputPath, "language-schemas")
 	err = os.MkdirAll(languageSchemasDir, 0o755)
 	if err != nil {
-		return "", err)
+		return "", err
 	}
 	schemaFileName := fmt.Sprintf("%s-schema.json", language)
 	languageSchemaPath := filepath.Join(languageSchemasDir, schemaFileName)
