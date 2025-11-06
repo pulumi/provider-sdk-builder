@@ -1,6 +1,9 @@
 package lang
 
 import (
+	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -124,5 +127,88 @@ func TestBaseGenerateSdkCommandDotNet(t *testing.T) {
 	expectedVersionCmd := "echo \"1.5.2\" > \"/test/output/dotnet/version.txt\""
 	if result[3] != expectedVersionCmd {
 		t.Errorf("expected version command: %q\ngot:      %q", expectedVersionCmd, result[3])
+	}
+}
+
+func TestBaseGenerateSdkCommandWithOverlays(t *testing.T) {
+	// Create a temporary directory for testing
+	tmpDir, err := os.MkdirTemp("", "overlay-test-*")
+	if err != nil {
+		t.Fatalf("failed to create temp directory: %v", err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	tests := []struct {
+		name            string
+		setup           func() string // returns providerPath
+		expectedHasFlag bool
+		description     string
+	}{
+		{
+			name: "overlays directory exists",
+			setup: func() string {
+				providerPath := filepath.Join(tmpDir, "provider1")
+				os.MkdirAll(providerPath, 0755)
+				overlayDir := filepath.Join(providerPath, "overlays")
+				os.MkdirAll(overlayDir, 0755)
+				return providerPath
+			},
+			expectedHasFlag: true,
+			description:     "should add --overlays flag when overlays directory exists",
+		},
+		{
+			name: "overlays directory does not exist",
+			setup: func() string {
+				providerPath := filepath.Join(tmpDir, "provider2")
+				os.MkdirAll(providerPath, 0755)
+				return providerPath
+			},
+			expectedHasFlag: false,
+			description:     "should not add --overlays flag when overlays directory does not exist",
+		},
+		{
+			name: "overlays is a file, not a directory",
+			setup: func() string {
+				providerPath := filepath.Join(tmpDir, "provider3")
+				os.MkdirAll(providerPath, 0755)
+				overlayFile := filepath.Join(providerPath, "overlays")
+				os.WriteFile(overlayFile, []byte("not a directory"), 0644)
+				return providerPath
+			},
+			expectedHasFlag: false,
+			description:     "should not add --overlays flag when 'overlays' is a file",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			providerPath := tt.setup()
+			schemaPath := "/test/schema.json"
+			outputPath := "/test/output"
+			language := "nodejs"
+			version := "1.0.0"
+
+			result := BaseGenerateSdkCommand(schemaPath, outputPath, language, version, providerPath)
+
+			if len(result) == 0 {
+				t.Fatal("expected at least one command")
+			}
+
+			sdkCmd := result[0]
+			fmt.Println(sdkCmd)
+			hasOverlaysFlag := strings.Contains(sdkCmd, "--overlays")
+
+			if hasOverlaysFlag != tt.expectedHasFlag {
+				t.Errorf("%s\nExpected --overlays flag: %v, got: %v\nCommand: %q", tt.description, tt.expectedHasFlag, hasOverlaysFlag, sdkCmd)
+			}
+
+			if tt.expectedHasFlag {
+				// Verify the overlay path is included
+				expectedPath := filepath.Join(providerPath, "overlays")
+				if !strings.Contains(sdkCmd, expectedPath) {
+					t.Errorf("expected command to contain overlay path %q, got: %q", expectedPath, sdkCmd)
+				}
+			}
+		})
 	}
 }
