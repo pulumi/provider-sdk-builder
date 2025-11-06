@@ -1,7 +1,6 @@
 package lang
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -141,42 +140,91 @@ func TestBaseGenerateSdkCommandWithOverlays(t *testing.T) {
 	tests := []struct {
 		name            string
 		setup           func() string // returns providerPath
+		language        string
 		expectedHasFlag bool
 		description     string
 	}{
 		{
-			name: "overlays directory exists",
+			name: "language-specific overlays directory exists",
 			setup: func() string {
 				providerPath := filepath.Join(tmpDir, "provider1")
 				os.MkdirAll(providerPath, 0755)
-				overlayDir := filepath.Join(providerPath, "overlays")
+				overlayDir := filepath.Join(providerPath, "overlays", "nodejs")
 				os.MkdirAll(overlayDir, 0755)
 				return providerPath
 			},
+			language:        "nodejs",
 			expectedHasFlag: true,
-			description:     "should add --overlays flag when overlays directory exists",
+			description:     "should add --overlays flag when language-specific overlays directory exists",
+		},
+		{
+			name: "overlays directory exists but not language-specific",
+			setup: func() string {
+				providerPath := filepath.Join(tmpDir, "provider2")
+				os.MkdirAll(providerPath, 0755)
+				overlayDir := filepath.Join(providerPath, "overlays")
+				os.MkdirAll(overlayDir, 0755)
+				// Create a different language directory, but not the one we're testing
+				otherLangDir := filepath.Join(overlayDir, "python")
+				os.MkdirAll(otherLangDir, 0755)
+				return providerPath
+			},
+			language:        "nodejs",
+			expectedHasFlag: false,
+			description:     "should not add --overlays flag when only other language directories exist",
 		},
 		{
 			name: "overlays directory does not exist",
 			setup: func() string {
-				providerPath := filepath.Join(tmpDir, "provider2")
+				providerPath := filepath.Join(tmpDir, "provider3")
 				os.MkdirAll(providerPath, 0755)
 				return providerPath
 			},
+			language:        "nodejs",
 			expectedHasFlag: false,
 			description:     "should not add --overlays flag when overlays directory does not exist",
 		},
 		{
-			name: "overlays is a file, not a directory",
+			name: "language-specific overlays is a file, not a directory",
 			setup: func() string {
-				providerPath := filepath.Join(tmpDir, "provider3")
+				providerPath := filepath.Join(tmpDir, "provider4")
 				os.MkdirAll(providerPath, 0755)
-				overlayFile := filepath.Join(providerPath, "overlays")
+				overlayBaseDir := filepath.Join(providerPath, "overlays")
+				os.MkdirAll(overlayBaseDir, 0755)
+				overlayFile := filepath.Join(overlayBaseDir, "nodejs")
 				os.WriteFile(overlayFile, []byte("not a directory"), 0644)
 				return providerPath
 			},
+			language:        "nodejs",
 			expectedHasFlag: false,
-			description:     "should not add --overlays flag when 'overlays' is a file",
+			description:     "should not add --overlays flag when language-specific 'overlays' is a file",
+		},
+		{
+			name: "different language directory exists",
+			setup: func() string {
+				providerPath := filepath.Join(tmpDir, "provider5")
+				os.MkdirAll(providerPath, 0755)
+				overlayDir := filepath.Join(providerPath, "overlays", "python")
+				os.MkdirAll(overlayDir, 0755)
+				return providerPath
+			},
+			language:        "nodejs",
+			expectedHasFlag: false,
+			description:     "should not add --overlays flag for nodejs when only python directory exists",
+		},
+		{
+			name: "multiple language directories exist, including target",
+			setup: func() string {
+				providerPath := filepath.Join(tmpDir, "provider6")
+				os.MkdirAll(providerPath, 0755)
+				overlayBaseDir := filepath.Join(providerPath, "overlays")
+				os.MkdirAll(filepath.Join(overlayBaseDir, "nodejs"), 0755)
+				os.MkdirAll(filepath.Join(overlayBaseDir, "python"), 0755)
+				return providerPath
+			},
+			language:        "nodejs",
+			expectedHasFlag: true,
+			description:     "should add --overlays flag when target language directory exists among multiple",
 		},
 	}
 
@@ -185,17 +233,15 @@ func TestBaseGenerateSdkCommandWithOverlays(t *testing.T) {
 			providerPath := tt.setup()
 			schemaPath := "/test/schema.json"
 			outputPath := "/test/output"
-			language := "nodejs"
 			version := "1.0.0"
 
-			result := BaseGenerateSdkCommand(schemaPath, outputPath, language, version, providerPath)
+			result := BaseGenerateSdkCommand(schemaPath, outputPath, tt.language, version, providerPath)
 
 			if len(result) == 0 {
 				t.Fatal("expected at least one command")
 			}
 
 			sdkCmd := result[0]
-			fmt.Println(sdkCmd)
 			hasOverlaysFlag := strings.Contains(sdkCmd, "--overlays")
 
 			if hasOverlaysFlag != tt.expectedHasFlag {
@@ -203,7 +249,7 @@ func TestBaseGenerateSdkCommandWithOverlays(t *testing.T) {
 			}
 
 			if tt.expectedHasFlag {
-				// Verify the overlay path is included
+				// Verify the overlay path is included (should be the base overlays directory, not language-specific)
 				expectedPath := filepath.Join(providerPath, "overlays")
 				if !strings.Contains(sdkCmd, expectedPath) {
 					t.Errorf("expected command to contain overlay path %q, got: %q", expectedPath, sdkCmd)

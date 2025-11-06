@@ -22,11 +22,15 @@ func BaseGenerateSdkCommand(schemaPath, outputPath, language, version, providerP
 	sdkCmd = strings.ReplaceAll(sdkCmd, "{OutputPath}", outputPath)
 	sdkCmd = strings.ReplaceAll(sdkCmd, "{Version}", version)
 
-	// Providers are expected to keep their overlays in an `./overlays` directory.
-	// Add --overlays flag if overlay directory exists
-	overlayDirLocation := filepath.Join(providerPath, "overlays")
-	info, err := os.Stat(overlayDirLocation)
+	// Provider overlays must be in an overlays directory. This tool hard-codes that directory as `./overlays/`.
+	// In order for Pulumi to create the overlay, languages have language-specific folders within the overlays directory.
+	overlayLanguageDirLocation := filepath.Join(providerPath, "overlays", language)
+	info, err := os.Stat(overlayLanguageDirLocation)
+
+	// Add --overlays flag if overlay directory exists for that language
 	if !errors.Is(err, fs.ErrNotExist) && info.IsDir() {
+		// The directory we pass to the CLI is just the top-level overlays directory, not the language-specific one.
+		overlayDirLocation := filepath.Join(providerPath, "overlays")
 		sdkCmd += " --overlays \"" + overlayDirLocation + "\""
 	}
 
