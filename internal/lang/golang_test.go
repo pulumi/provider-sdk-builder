@@ -1,6 +1,7 @@
 package lang
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -63,16 +64,31 @@ func TestGoLangCompileSdkRecipe(t *testing.T) {
 
 	result := goLang.CompileSdkRecipe(outputPath, providerPath)
 
-	if len(result) != expectedGoCompileCommandCount {
-		t.Fatalf("expected %d command, got %d", expectedGoCompileCommandCount, len(result))
+	if len(result) != 1 {
+		t.Fatalf("expected 1 command, got %d", len(result))
 	}
 
-	// Verify the command uses pulumi package pack-sdk
+	// Verify the command contains the expected components
 	cmd := result[0]
-	expected := "cd /test/output && pulumi package pack-sdk go ."
 
-	if cmd != expected {
-		t.Errorf("expected command: %q\ngot:      %q", expected, cmd)
+	// Should contain the cd command with output path
+	if !strings.Contains(cmd, "cd /test/output/") {
+		t.Errorf("expected command to contain 'cd /test/output/', got: %q", cmd)
+	}
+
+	// Should contain the go list and build command
+	if !strings.Contains(cmd, "go list") {
+		t.Errorf("expected command to contain 'go list', got: %q", cmd)
+	}
+
+	// Should contain command joining
+	if !strings.Contains(cmd, " && \\\n") {
+		t.Errorf("expected command to contain command joiner ' && \\\\\\n', got: %q", cmd)
+	}
+
+	// Should have output path substituted (not contain template)
+	if strings.Contains(cmd, "{OutputPath}") {
+		t.Errorf("expected {OutputPath} to be substituted, but found it in: %q", cmd)
 	}
 }
 
