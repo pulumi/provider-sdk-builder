@@ -13,7 +13,7 @@ func (l GoLang) GenerateSdkRecipe(schemaPath, outputPath, version, providerPath 
 }
 
 func (l GoLang) CompileSdkRecipe(outputPath, providerPath string) []string {
-	//TODO once we stop checking in the other SDKS we can replace this recipie with the following one liner
+	//TODO once we stop checking in the other SDKS we can replace this recipe with the following one liner
 	// return []string{"cd " + outputPath + " && pulumi package pack-sdk go ."}
 
 	// Named individual commands for ease of comprehension
