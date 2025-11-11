@@ -1,5 +1,7 @@
 package lang
 
+import "strings"
+
 type GoLang struct{}
 
 func (l GoLang) String() string {
@@ -11,7 +13,23 @@ func (l GoLang) GenerateSdkRecipe(schemaPath, outputPath, version, providerPath 
 }
 
 func (l GoLang) CompileSdkRecipe(outputPath, providerPath string) []string {
-	return []string{"cd " + outputPath + " && pulumi package pack-sdk go ."}
+	//TODO once we stop checking in the other SDKS we can replace this recipie with the following one liner
+	// return []string{"cd " + outputPath + " && pulumi package pack-sdk go ."}
+
+	// Named individual commands for ease of comprehension
+	const (
+		cdToSdkDir        = "cd {OutputPath}/"
+		goListAndBuildCmd = `go list "$(grep -e "^module" go.mod | cut -d ' ' -f 2)/go/..." | xargs -I {} bash -c 'go build {} && go clean -i {}'`
+	)
+
+	var compileGoRecipie = []string{
+		cdToSdkDir,
+		goListAndBuildCmd,
+	}
+
+	compileGoCmd := strings.Join(compileGoRecipie, joinCmdLineEnding)
+	compileGoCmd = strings.ReplaceAll(compileGoCmd, "{OutputPath}", outputPath)
+	return []string{compileGoCmd}
 }
 
 func (l GoLang) InstallSdkRecipe(outputPath string) []string {
