@@ -11,8 +11,8 @@ const (
 	expectedDotNetGenerateCommandCount = 4
 
 	// expectedDotNetCompileCommandCount is the number of commands returned by CompileSdkRecipe:
-	// 1. mkdir for nuget directory, 2. pack-sdk command
-	expectedDotNetCompileCommandCount = 2
+	// 1. Compound command (mkdir + cd + dotnet build)
+	expectedDotNetCompileCommandCount = 1
 
 	// expectedDotNetInstallCommandCount is the number of commands returned by InstallSdkRecipe:
 	// 1. Complex command chain (mkdir + find + copy + nuget operations)
@@ -65,19 +65,29 @@ func TestDotNetCompileSdkRecipe(t *testing.T) {
 	result := dotnet.CompileSdkRecipe(outputPath, providerPath)
 
 	if len(result) != expectedDotNetCompileCommandCount {
-		t.Fatalf("expected %d commands (mkdir nuget + pack-sdk), got %d", expectedDotNetCompileCommandCount, len(result))
+		t.Fatalf("expected %d command, got %d", expectedDotNetCompileCommandCount, len(result))
 	}
 
-	// Verify mkdir command
-	expectedMkdir := "mkdir -p /provider/path/nuget"
-	if result[0] != expectedMkdir {
-		t.Errorf("expected mkdir command: %q\ngot:      %q", expectedMkdir, result[0])
+	cmd := result[0]
+
+	// Should contain the cd command with output path
+	if !strings.Contains(cmd, "cd /build/dotnet/dotnet/") {
+		t.Errorf("expected command to contain 'cd /build/dotnet/dotnet/', got: %q", cmd)
 	}
 
-	// Verify the pack-sdk command
-	expectedPackSdk := "cd /build/dotnet/dotnet && pulumi package pack-sdk dotnet ."
-	if result[1] != expectedPackSdk {
-		t.Errorf("expected pack-sdk command: %q\ngot:      %q", expectedPackSdk, result[1])
+	// Should contain dotnet build command
+	if !strings.Contains(cmd, "dotnet build") {
+		t.Errorf("expected command to contain 'dotnet build', got: %q", cmd)
+	}
+
+	// Should contain command joining
+	if !strings.Contains(cmd, " && \\\n") {
+		t.Errorf("expected command to contain command joiner ' && \\\\\\n', got: %q", cmd)
+	}
+
+	// Should have output path substituted (not contain template)
+	if strings.Contains(cmd, "{OutputPath}") {
+		t.Errorf("expected {OutputPath} to be substituted, but found it in: %q", cmd)
 	}
 }
 

@@ -11,7 +11,7 @@ const (
 	expectedNodeJSGenerateCommandCount = 4
 
 	// expectedNodeJSCompileCommandCount is the number of commands returned by CompileSdkRecipe:
-	// 1. pack-sdk command
+	// 1. Compound command (cd + yarn install + yarn run tsc + cp package files)
 	expectedNodeJSCompileCommandCount = 1
 
 	// expectedNodeJSInstallCommandCount is the number of commands returned by InstallSdkRecipe:
@@ -68,12 +68,37 @@ func TestNodeJSCompileSdkRecipe(t *testing.T) {
 		t.Fatalf("expected %d command, got %d", expectedNodeJSCompileCommandCount, len(result))
 	}
 
-	// Verify the command uses pulumi package pack-sdk
+	// Verify the command contains the expected components
 	cmd := result[0]
-	expected := "cd /project/output/nodejs && pulumi package pack-sdk nodejs ."
 
-	if cmd != expected {
-		t.Errorf("expected command: %q\ngot:      %q", expected, cmd)
+	// Should contain the cd command with output path
+	if !strings.Contains(cmd, "cd /project/output/nodejs") {
+		t.Errorf("expected command to contain 'cd /project/output/nodejs', got: %q", cmd)
+	}
+
+	// Should contain yarn install command
+	if !strings.Contains(cmd, "yarn install") {
+		t.Errorf("expected command to contain 'yarn install', got: %q", cmd)
+	}
+
+	// Should contain yarn run tsc command
+	if !strings.Contains(cmd, "yarn run tsc") {
+		t.Errorf("expected command to contain 'yarn run tsc', got: %q", cmd)
+	}
+
+	// Should contain copy package files command
+	if !strings.Contains(cmd, "cp package.json yarn.lock ./bin/") {
+		t.Errorf("expected command to contain 'cp package.json yarn.lock ./bin/', got: %q", cmd)
+	}
+
+	// Should contain command joining
+	if !strings.Contains(cmd, " && \\\n") {
+		t.Errorf("expected command to contain command joiner ' && \\\\\\n', got: %q", cmd)
+	}
+
+	// Should have output path substituted (not contain template)
+	if strings.Contains(cmd, "{OutputPath}") {
+		t.Errorf("expected {OutputPath} to be substituted, but found it in: %q", cmd)
 	}
 }
 

@@ -1,6 +1,7 @@
 package lang
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -10,7 +11,7 @@ const (
 	expectedJavaGenerateCommandCount = 4
 
 	// expectedJavaCompileCommandCount is the number of commands returned by CompileSdkRecipe:
-	// 1. pack-sdk command
+	// 1. Compound command (cd + gradle build + gradle javadoc)
 	expectedJavaCompileCommandCount = 1
 
 	// expectedJavaInstallCommandCount is the number of commands returned by InstallSdkRecipe:
@@ -67,12 +68,32 @@ func TestJavaCompileSdkRecipe(t *testing.T) {
 		t.Fatalf("expected %d command, got %d", expectedJavaCompileCommandCount, len(result))
 	}
 
-	// Verify the command uses pulumi package pack-sdk
+	// Verify the command contains the expected components
 	cmd := result[0]
-	expected := "cd /test/build/java && pulumi package pack-sdk java ."
 
-	if cmd != expected {
-		t.Errorf("expected command: %q\ngot:      %q", expected, cmd)
+	// Should contain the cd command with output path
+	if !strings.Contains(cmd, "cd /test/build/java/") {
+		t.Errorf("expected command to contain 'cd /test/build/java/', got: %q", cmd)
+	}
+
+	// Should contain gradle build command
+	if !strings.Contains(cmd, "gradle --console=plain build") {
+		t.Errorf("expected command to contain 'gradle --console=plain build', got: %q", cmd)
+	}
+
+	// Should contain gradle javadoc command
+	if !strings.Contains(cmd, "gradle --console=plain javadoc") {
+		t.Errorf("expected command to contain 'gradle --console=plain javadoc', got: %q", cmd)
+	}
+
+	// Should contain command joining
+	if !strings.Contains(cmd, " && \\\n") {
+		t.Errorf("expected command to contain command joiner ' && \\\\\\n', got: %q", cmd)
+	}
+
+	// Should have output path substituted (not contain template)
+	if strings.Contains(cmd, "{OutputPath}") {
+		t.Errorf("expected {OutputPath} to be substituted, but found it in: %q", cmd)
 	}
 }
 
