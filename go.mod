@@ -1,6 +1,6 @@
 module github.com/pulumi/provider-sdk-builder
 
-go 1.24.5
+go 1.24.0
 
 require (
 	github.com/pulumi/pulumi-terraform-bridge/v3 v3.116.0
