@@ -11,7 +11,7 @@ type Language interface {
 	String() string
 	GenerateSdkRecipe(schemaPath, outputPath, version, providerPath string) []string
 	CompileSdkRecipe(outputPath, providerPath string) []string
-	InstallSdkRecipe(outputPath string) []string
+	InstallSdkRecipe(sdkLocation, installLocation string) []string
 }
 
 var (

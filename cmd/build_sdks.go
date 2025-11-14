@@ -22,7 +22,7 @@ var buildSdksCmd = &cobra.Command{
 }
 
 var (
-	buildAllInstructions = builder.BuildInstructions{GenerateSdks: true, CompileSdks: true, InstallSdks: true}
+	buildAllInstructions = builder.BuildInstructions{GenerateSdks: true, CompileSdks: true}
 )
 
 func buildSdk() error {
@@ -46,4 +46,5 @@ func buildSdk() error {
 
 func init() {
 	rootCmd.AddCommand(buildSdksCmd)
+	buildSdksCmd.MarkFlagRequired("providerName")
 }

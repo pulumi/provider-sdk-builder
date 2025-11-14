@@ -49,4 +49,5 @@ func generateRawSdk() error {
 
 func init() {
 	rootCmd.AddCommand(generateSdkCmd)
+	generateSdkCmd.MarkFlagRequired("providerName")
 }

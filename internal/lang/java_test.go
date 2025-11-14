@@ -99,9 +99,10 @@ func TestJavaCompileSdkRecipe(t *testing.T) {
 
 func TestJavaInstallSdkRecipe(t *testing.T) {
 	java := Java{}
-	outputPath := "/test/build"
+	sdkLocation := "/test/build"
+	installLocation := ""
 
-	result := java.InstallSdkRecipe(outputPath)
+	result := java.InstallSdkRecipe(sdkLocation, installLocation)
 
 	// Java should return empty slice (no install steps needed)
 	if len(result) != expectedJavaInstallCommandCount {

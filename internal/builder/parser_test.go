@@ -97,3 +97,80 @@ func TestParseInputsOutputPathDefault(t *testing.T) {
 		t.Errorf("expected OutputPath to be %q, got %q", expectedOutputPath, params.OutputPath)
 	}
 }
+
+func TestParseInstallInputs(t *testing.T) {
+	tests := []struct {
+		name                  string
+		rawRequestedLanguages string
+		sdkLocation           string
+		installLocation       string
+		expectedLanguages     int
+		expectError           bool
+	}{
+		{
+			name:                  "single language",
+			rawRequestedLanguages: "go",
+			sdkLocation:           "/test/sdk",
+			installLocation:       "/test/install",
+			expectedLanguages:     1,
+			expectError:           false,
+		},
+		{
+			name:                  "multiple languages",
+			rawRequestedLanguages: "go,python,nodejs",
+			sdkLocation:           "/test/sdk",
+			installLocation:       "/test/install",
+			expectedLanguages:     3,
+			expectError:           false,
+		},
+		{
+			name:                  "all languages",
+			rawRequestedLanguages: "all",
+			sdkLocation:           "/test/sdk",
+			installLocation:       "/test/install",
+			expectedLanguages:     5,
+			expectError:           false,
+		},
+		{
+			name:                  "invalid language",
+			rawRequestedLanguages: "invalid",
+			sdkLocation:           "/test/sdk",
+			installLocation:       "/test/install",
+			expectedLanguages:     0,
+			expectError:           true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			params, err := ParseInstallInputs(
+				tt.rawRequestedLanguages,
+				tt.sdkLocation,
+				tt.installLocation,
+			)
+
+			if tt.expectError {
+				if err == nil {
+					t.Errorf("expected error but got none")
+				}
+				return
+			}
+
+			if err != nil {
+				t.Errorf("unexpected error: %v", err)
+			}
+
+			if len(params.RequestedLanguages) != tt.expectedLanguages {
+				t.Errorf("expected %d languages, got %d", tt.expectedLanguages, len(params.RequestedLanguages))
+			}
+
+			if params.SdkLocation != tt.sdkLocation {
+				t.Errorf("expected SdkLocation to be %q, got %q", tt.sdkLocation, params.SdkLocation)
+			}
+
+			if params.InstallLocation != tt.installLocation {
+				t.Errorf("expected InstallLocation to be %q, got %q", tt.installLocation, params.InstallLocation)
+			}
+		})
+	}
+}

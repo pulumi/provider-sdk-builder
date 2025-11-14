@@ -14,6 +14,12 @@ type BuildParameters struct {
 	VersionString      string
 }
 
+type InstallParameters struct {
+	RequestedLanguages []lang.Language
+	SdkLocation        string
+	InstallLocation    string
+}
+
 const (
 	schemaPathPattern = "provider/cmd/pulumi-resource-{ProviderName}/schema.json"
 	defaultOutputPath = "sdk"
@@ -43,4 +49,17 @@ func ParseInputs(providerPath, providerName, rawRequestedLanguages, schemaPath, 
 		SchemaPath:         schemaPath,
 		OutputPath:         outputPath,
 		VersionString:      versionString}, nil
+}
+
+func ParseInstallInputs(rawRequestedLanguages, sdkLocation, installLocation string) (InstallParameters, error) {
+	languages, err := lang.ParseRequestedLanguages(rawRequestedLanguages)
+	if err != nil {
+		return InstallParameters{}, err
+	}
+
+	return InstallParameters{
+		RequestedLanguages: languages,
+		SdkLocation:        sdkLocation,
+		InstallLocation:    installLocation,
+	}, nil
 }

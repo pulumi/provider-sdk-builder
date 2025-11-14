@@ -7,7 +7,6 @@ import (
 type BuildInstructions struct {
 	GenerateSdks bool
 	CompileSdks  bool
-	InstallSdks  bool
 }
 
 func GenerateBuildCmds(params BuildParameters, instructions BuildInstructions) ([]string, error) {
@@ -27,10 +26,6 @@ func GenerateBuildCmds(params BuildParameters, instructions BuildInstructions) (
 
 		if instructions.CompileSdks {
 			result = append(result, chosenLanguage.CompileSdkRecipe(params.OutputPath, params.ProviderPath)...)
-		}
-
-		if instructions.InstallSdks {
-			result = append(result, chosenLanguage.InstallSdkRecipe(params.OutputPath)...)
 		}
 	}
 

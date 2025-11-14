@@ -28,6 +28,8 @@ var (
 	outputPath        string
 	sdkVersionString  string
 	schemaPath        string
+	sdkLocation       string
+	installLocation   string
 
 	quiet bool
 )
@@ -50,7 +52,8 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&outputPath, "out", "o", "", "Where you would like to output generated SDKs if different than {provider}/sdk")
 	rootCmd.PersistentFlags().StringVar(&schemaPath, "schema", "", "Absolute path of schema.json. Defaults to  '{provider}/provider/cmd/pulumi-resource-random/schema.json'")
 	rootCmd.PersistentFlags().StringVar(&sdkVersionString, "version", "4.0.0-alpha.0+dev", "SDK Version5")
+	rootCmd.PersistentFlags().StringVar(&sdkLocation, "sdkLocation", "", "Location of the compiled SDK to install.")
+	rootCmd.PersistentFlags().StringVar(&installLocation, "installLocation", ".", "Path to install chosen SDK at")
 
-	rootCmd.MarkPersistentFlagRequired("providerName")
 	rootCmd.PersistentFlags().BoolVarP(&quiet, "quiet", "q", false, "Quiet output (hide command details)")
 }

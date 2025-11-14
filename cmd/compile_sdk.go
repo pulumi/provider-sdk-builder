@@ -51,4 +51,5 @@ func compileSdk() error {
 
 func init() {
 	rootCmd.AddCommand(compileSdkCmd)
+	compileSdkCmd.MarkFlagRequired("providerName")
 }

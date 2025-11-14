@@ -33,21 +33,26 @@ func (l DotNet) CompileSdkRecipe(outputPath, providerPath string) []string {
 	return []string{compileDotNetCmd}
 }
 
-func (l DotNet) InstallSdkRecipe(outputPath string) []string {
+func (l DotNet) InstallSdkRecipe(sdkLocation, installLocation string) []string {
 	// Named individual commands for ease of comprehension
 	const (
-		mkdirNuget        = "mkdir -p {OutputPath}/../nuget"
-		findAndCopyNupkg  = "find {OutputPath}/dotnet/bin -name '*.nupkg' -print -exec cp -p \"{{}}\" {OutputPath}/../nuget \\;"
-		checkAndAddSource = "dotnet nuget list source | grep \"{OutputPath}/../nuget\" || dotnet nuget add source \"{OutputPath}/../nuget\" --name \"{OutputPath}/../nuget\""
+		mkdirNuget              = "mkdir -p {InstallLocation}/nuget"
+		checkNugetSourcesActive = "if dotnet nuget list source | grep \"{InstallLocation}/nuget\" | grep \"[Enabled]\"; then {CMD_TO_EXECUTE} ; fi"
+		removePriorNugetSources = "dotnet nuget list source | grep Enabled | awk '{print $2}' | xargs -I % dotnet nuget remove source %"
+		findAndCopyNupkg        = "find {SdkLocation} -name '*.nupkg' -print -exec cp -p \"{}\" {InstallLocation}/nuget \\;"
+		checkAndAddSource       = "dotnet nuget add source \"{InstallLocation}/nuget\" --name \"{InstallLocation}/nuget\""
 	)
 
 	var installDotNetRecipe = []string{
 		mkdirNuget,
+		strings.ReplaceAll(checkNugetSourcesActive, "{CMD_TO_EXECUTE}", removePriorNugetSources),
+		removePriorNugetSources,
 		findAndCopyNupkg,
 		checkAndAddSource,
 	}
 
 	installDotNetCmd := strings.Join(installDotNetRecipe, joinCmdLineEnding)
-	installDotNetCmd = strings.ReplaceAll(installDotNetCmd, "{OutputPath}", outputPath)
+	installDotNetCmd = strings.ReplaceAll(installDotNetCmd, "{SdkLocation}", sdkLocation)
+	installDotNetCmd = strings.ReplaceAll(installDotNetCmd, "{InstallLocation}", installLocation)
 	return []string{installDotNetCmd}
 }

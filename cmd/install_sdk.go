@@ -28,29 +28,29 @@ For each language, this command runs the appropriate installation steps:
 	},
 }
 
-var (
-	installOnlyInstructions = builder.BuildInstructions{InstallSdks: true}
-)
-
 func installSdk() error {
 
 	if !quiet {
-		fmt.Printf("Installing the SDKs found at Path: %s\nLanguages: %v\n", providerPath, rawLanguageString)
+		fmt.Printf("Installing the SDKs found at Path: %s\nLanguages: %v\n", sdkLocation, rawLanguageString)
 	}
 
-	params, err := builder.ParseInputs(providerPath, providerName, rawLanguageString, schemaPath, outputPath, sdkVersionString)
+	// Parse install inputs
+	params, err := builder.ParseInstallInputs(rawLanguageString, sdkLocation, installLocation)
 	if err != nil {
 		return err
 	}
 
-	commands, err := builder.GenerateBuildCmds(params, installOnlyInstructions)
-	if err != nil {
-		return err
+	var commands []string
+	for _, language := range params.RequestedLanguages {
+		langCommands := language.InstallSdkRecipe(params.SdkLocation, params.InstallLocation)
+		commands = append(commands, langCommands...)
 	}
 
+	// Execute the commands
 	return builder.ExecuteCommandSequence(commands, quiet, os.Stdout)
 }
 
 func init() {
 	rootCmd.AddCommand(installSdkCmd)
+	installSdkCmd.MarkFlagRequired("sdkLocation")
 }

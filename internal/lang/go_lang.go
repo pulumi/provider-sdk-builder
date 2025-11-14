@@ -32,7 +32,7 @@ func (l GoLang) CompileSdkRecipe(outputPath, providerPath string) []string {
 	return []string{compileGoCmd}
 }
 
-func (l GoLang) InstallSdkRecipe(outputPath string) []string {
+func (l GoLang) InstallSdkRecipe(sdkLocation, installLocation string) []string {
 	// No install steps needed for Go
 	return []string{}
 }

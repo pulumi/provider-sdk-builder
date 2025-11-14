@@ -114,9 +114,10 @@ func TestPythonCompileSdkRecipe(t *testing.T) {
 
 func TestPythonInstallSdkRecipe(t *testing.T) {
 	python := Python{}
-	outputPath := "/build/output"
+	sdkLocation := "/build/output"
+	installLocation := ""
 
-	result := python.InstallSdkRecipe(outputPath)
+	result := python.InstallSdkRecipe(sdkLocation, installLocation)
 
 	// Python should return empty slice (no install steps needed)
 	if len(result) != expectedPythonInstallCommandCount {
