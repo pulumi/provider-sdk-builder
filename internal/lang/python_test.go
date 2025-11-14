@@ -1,6 +1,7 @@
 package lang
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -10,7 +11,7 @@ const (
 	expectedPythonGenerateCommandCount = 4
 
 	// expectedPythonCompileCommandCount is the number of commands returned by CompileSdkRecipe:
-	// 1. pack-sdk command
+	// 1. Compound command (cd + clean + copy + move + delete + venv + install + cd + build)
 	expectedPythonCompileCommandCount = 1
 
 	// expectedPythonInstallCommandCount is the number of commands returned by InstallSdkRecipe:
@@ -67,12 +68,47 @@ func TestPythonCompileSdkRecipe(t *testing.T) {
 		t.Fatalf("expected %d command, got %d", expectedPythonCompileCommandCount, len(result))
 	}
 
-	// Verify the command uses pulumi package pack-sdk
+	// Verify the command contains the expected components
 	cmd := result[0]
-	expected := "cd /build/output/python && pulumi package pack-sdk python ."
 
-	if cmd != expected {
-		t.Errorf("expected command: %q\ngot:      %q", expected, cmd)
+	// Should contain the cd command with output path
+	if !strings.Contains(cmd, "cd /build/output/python") {
+		t.Errorf("expected command to contain 'cd /build/output/python', got: %q", cmd)
+	}
+
+	// Should contain clean bin command
+	if !strings.Contains(cmd, "rm -rf ./bin/ ../python.bin/") {
+		t.Errorf("expected command to contain 'rm -rf ./bin/ ../python.bin/', got: %q", cmd)
+	}
+
+	// Should contain copy command
+	if !strings.Contains(cmd, "cp -R . ../python.bin") {
+		t.Errorf("expected command to contain 'cp -R . ../python.bin', got: %q", cmd)
+	}
+
+	// Should contain move command
+	if !strings.Contains(cmd, "mv ../python.bin ./bin") {
+		t.Errorf("expected command to contain 'mv ../python.bin ./bin', got: %q", cmd)
+	}
+
+	// Should contain venv creation
+	if !strings.Contains(cmd, "python3 -m venv venv") {
+		t.Errorf("expected command to contain 'python3 -m venv venv', got: %q", cmd)
+	}
+
+	// Should contain build command
+	if !strings.Contains(cmd, "../venv/bin/python -m build .") {
+		t.Errorf("expected command to contain '../venv/bin/python -m build .', got: %q", cmd)
+	}
+
+	// Should contain command joining
+	if !strings.Contains(cmd, " && \\\n") {
+		t.Errorf("expected command to contain command joiner ' && \\\\\\n', got: %q", cmd)
+	}
+
+	// Should have output path substituted (not contain template)
+	if strings.Contains(cmd, "{OutputPath}") {
+		t.Errorf("expected {OutputPath} to be substituted, but found it in: %q", cmd)
 	}
 }
 

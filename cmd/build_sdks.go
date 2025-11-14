@@ -22,7 +22,7 @@ var buildSdksCmd = &cobra.Command{
 }
 
 var (
-	buildAllInstructions = builder.BuildInstructions{GenerateSdks: true, CompileSdks: true}
+	buildAllInstructions = builder.BuildInstructions{GenerateSdks: true, CompileSdks: true, InstallSdks: true}
 )
 
 func buildSdk() error {
