@@ -34,7 +34,7 @@ func (l Java) CompileSdkRecipe(outputPath, providerPath string) []string {
 	return []string{compileJavaCmd}
 }
 
-func (l Java) InstallSdkRecipe(outputPath string) []string {
+func (l Java) InstallSdkRecipe(sdkLocation, installLocation string) []string {
 	// No install steps needed for Java
 	return []string{}
 }

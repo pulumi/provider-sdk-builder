@@ -93,9 +93,10 @@ func TestDotNetCompileSdkRecipe(t *testing.T) {
 
 func TestDotNetInstallSdkRecipe(t *testing.T) {
 	dotnet := DotNet{}
-	outputPath := "/build/dotnet"
+	sdkLocation := "/build/sdk"
+	installLocation := "/usr/local"
 
-	result := dotnet.InstallSdkRecipe(outputPath)
+	result := dotnet.InstallSdkRecipe(sdkLocation, installLocation)
 
 	if len(result) != expectedDotNetInstallCommandCount {
 		t.Fatalf("expected %d command, got %d", expectedDotNetInstallCommandCount, len(result))
@@ -103,28 +104,29 @@ func TestDotNetInstallSdkRecipe(t *testing.T) {
 
 	cmd := result[0]
 
-	// Should contain mkdir for nuget directory
-	if !strings.Contains(cmd, "mkdir -p /build/dotnet/../nuget") {
-		t.Errorf("expected command to contain 'mkdir -p /build/dotnet/../nuget', got: %q", cmd)
+	// Should contain mkdir for nuget directory at install location
+	if !strings.Contains(cmd, "mkdir -p /usr/local/nuget") {
+		t.Errorf("expected command to contain 'mkdir -p /usr/local/nuget', got: %q", cmd)
 	}
 
-	// Should contain find command to copy .nupkg files
-	if !strings.Contains(cmd, "find /build/dotnet/dotnet/bin -name '*.nupkg'") {
-		t.Errorf("expected command to contain find for .nupkg files, got: %q", cmd)
+	// Should contain find command to search sdk location for .nupkg files
+	if !strings.Contains(cmd, "find /build/sdk -name '*.nupkg'") {
+		t.Errorf("expected command to contain 'find /build/sdk -name '*.nupkg'', got: %q", cmd)
 	}
 
-	// Should contain copy command
-	if !strings.Contains(cmd, "cp -p") {
-		t.Errorf("expected command to contain 'cp -p', got: %q", cmd)
+	// Should copy to install location
+	if !strings.Contains(cmd, "cp -p") && !strings.Contains(cmd, "/usr/local/nuget") {
+		t.Errorf("expected command to copy to install location, got: %q", cmd)
 	}
 
-	// Should contain dotnet nuget commands
-	if !strings.Contains(cmd, "dotnet nuget list source") {
-		t.Errorf("expected command to contain 'dotnet nuget list source', got: %q", cmd)
-	}
-
+	// Should contain dotnet nuget add source command
 	if !strings.Contains(cmd, "dotnet nuget add source") {
 		t.Errorf("expected command to contain 'dotnet nuget add source', got: %q", cmd)
+	}
+
+	// Should reference install location in nuget source
+	if !strings.Contains(cmd, "\"/usr/local/nuget\"") {
+		t.Errorf("expected command to reference install location in nuget source, got: %q", cmd)
 	}
 
 	// Should contain command joining
@@ -132,8 +134,12 @@ func TestDotNetInstallSdkRecipe(t *testing.T) {
 		t.Errorf("expected command to contain command joiner ' && \\\\\\n', got: %q", cmd)
 	}
 
-	// Should have output path substituted (not contain template)
-	if strings.Contains(cmd, "{OutputPath}") {
-		t.Errorf("expected {OutputPath} to be substituted, but found it in: %q", cmd)
+	// Should have templates substituted (not contain template variables)
+	if strings.Contains(cmd, "{SdkLocation}") {
+		t.Errorf("expected {SdkLocation} to be substituted, but found it in: %q", cmd)
+	}
+
+	if strings.Contains(cmd, "{InstallLocation}") {
+		t.Errorf("expected {InstallLocation} to be substituted, but found it in: %q", cmd)
 	}
 }

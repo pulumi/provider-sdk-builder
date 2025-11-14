@@ -104,9 +104,10 @@ func TestNodeJSCompileSdkRecipe(t *testing.T) {
 
 func TestNodeJSInstallSdkRecipe(t *testing.T) {
 	nodejs := NodeJS{}
-	outputPath := "/project/output"
+	sdkLocation := "/project/output"
+	installLocation := ""
 
-	result := nodejs.InstallSdkRecipe(outputPath)
+	result := nodejs.InstallSdkRecipe(sdkLocation, installLocation)
 
 	if len(result) != expectedNodeJSInstallCommandCount {
 		t.Fatalf("expected %d command, got %d", expectedNodeJSInstallCommandCount, len(result))

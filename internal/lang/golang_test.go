@@ -94,9 +94,10 @@ func TestGoLangCompileSdkRecipe(t *testing.T) {
 
 func TestGoLangInstallSdkRecipe(t *testing.T) {
 	goLang := GoLang{}
-	outputPath := "/test/output"
+	sdkLocation := "/test/output"
+	installLocation := ""
 
-	result := goLang.InstallSdkRecipe(outputPath)
+	result := goLang.InstallSdkRecipe(sdkLocation, installLocation)
 
 	// Go should return empty slice (no install steps needed)
 	if len(result) != expectedGoInstallCommandCount {
