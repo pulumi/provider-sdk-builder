@@ -36,19 +36,16 @@ func (l DotNet) CompileSdkRecipe(outputPath, providerPath string) []string {
 func (l DotNet) InstallSdkRecipe(sdkLocation, installLocation string) []string {
 	// Named individual commands for ease of comprehension
 	const (
-		mkdirNuget              = "mkdir -p {InstallLocation}/nuget"
-		checkNugetSourcesActive = "if dotnet nuget list source | grep \"{InstallLocation}/nuget\" | grep \"[Enabled]\"; then {CMD_TO_EXECUTE} ; fi"
-		removePriorNugetSources = "dotnet nuget list source | grep Enabled | awk '{print $2}' | xargs -I % dotnet nuget remove source %"
-		findAndCopyNupkg        = "find {SdkLocation} -name '*.nupkg' -print -exec cp -p \"{}\" {InstallLocation}/nuget \\;"
-		checkAndAddSource       = "dotnet nuget add source \"{InstallLocation}/nuget\" --name \"{InstallLocation}/nuget\""
+		mkdirNuget               = "mkdir -p {InstallLocation}/nuget"
+		findAndCopyNupkg         = "find {SdkLocation} -name '*.nupkg' -print -exec cp -p \"{}\" {InstallLocation}/nuget \\;"
+		checkForLocalNugetSource = "if ! dotnet nuget list source | grep \"${InstallLocation}/nuget\"; then {CMD_TO_EXECUTE} ; fi"
+		addNugetSource           = "dotnet nuget add source \"{InstallLocation}/nuget\" --name \"{InstallLocation}/nuget\""
 	)
 
 	var installDotNetRecipe = []string{
 		mkdirNuget,
-		strings.ReplaceAll(checkNugetSourcesActive, "{CMD_TO_EXECUTE}", removePriorNugetSources),
-		removePriorNugetSources,
 		findAndCopyNupkg,
-		checkAndAddSource,
+		strings.ReplaceAll(checkForLocalNugetSource, "{CMD_TO_EXECUTE}", addNugetSource),
 	}
 
 	installDotNetCmd := strings.Join(installDotNetRecipe, joinCmdLineEnding)
