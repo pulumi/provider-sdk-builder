@@ -38,7 +38,7 @@ func (l DotNet) InstallSdkRecipe(sdkLocation, installLocation string) []string {
 	const (
 		mkdirNuget               = "mkdir -p {InstallLocation}/nuget"
 		findAndCopyNupkg         = "find {SdkLocation} -name '*.nupkg' -print -exec cp -p \"{}\" {InstallLocation}/nuget \\;"
-		checkForLocalNugetSource = "if ! dotnet nuget list source | grep \"${InstallLocation}/nuget\"; then {CMD_TO_EXECUTE} ; fi"
+		checkForLocalNugetSource = "if ! dotnet nuget list source | grep \"{InstallLocation}/nuget\"; then {CMD_TO_EXECUTE} ; fi"
 		addNugetSource           = "dotnet nuget add source \"{InstallLocation}/nuget\" --name \"{InstallLocation}/nuget\""
 	)
 
