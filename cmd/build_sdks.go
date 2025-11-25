@@ -36,12 +36,7 @@ func buildSdk() error {
 		return err
 	}
 
-	commands, err := builder.GenerateBuildCmds(params, buildAllInstructions)
-	if err != nil {
-		return err
-	}
-
-	return builder.ExecuteCommandSequence(commands, quiet, os.Stdout)
+	return builder.BuildSDKs(params, buildAllInstructions, quiet, os.Stdout)
 }
 
 func init() {
