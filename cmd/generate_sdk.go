@@ -39,12 +39,7 @@ func generateRawSdk() error {
 		return err
 	}
 
-	commands, err := builder.GenerateBuildCmds(params, generateOnlyInstructions)
-	if err != nil {
-		return err
-	}
-
-	return builder.ExecuteCommandSequence(commands, quiet, os.Stdout)
+	return builder.BuildSDKs(params, generateOnlyInstructions, quiet, os.Stdout)
 }
 
 func init() {

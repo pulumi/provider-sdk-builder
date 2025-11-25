@@ -6,6 +6,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/pulumi/provider-sdk-builder/internal/builder"
 	"github.com/spf13/cobra"
@@ -42,7 +43,10 @@ func installSdk() error {
 
 	var commands []string
 	for _, language := range params.RequestedLanguages {
-		langCommands := language.InstallSdkRecipe(params.SdkLocation, params.InstallLocation)
+
+		languageSDKLocation := filepath.Join(params.SdkLocation, language.String())
+
+		langCommands := language.InstallSdkRecipe(languageSDKLocation, params.InstallLocation)
 		commands = append(commands, langCommands...)
 	}
 
@@ -52,5 +56,4 @@ func installSdk() error {
 
 func init() {
 	rootCmd.AddCommand(installSdkCmd)
-	installSdkCmd.MarkFlagRequired("sdkLocation")
 }
