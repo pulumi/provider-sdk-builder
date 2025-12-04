@@ -14,7 +14,7 @@ var rootCmd = &cobra.Command{
 	Use:   "provider-sdk-builder",
 	Short: "Generate Pulumi SDKs for a given cloud provider",
 	Long: `Generate Pulumi Provider SDKs against a given cloud provider
-Supports Go, Python, .NET, NodesJS, and Java. 
+Supports Go, Python, .NET, NodeJS, and Java.
 SDKs require a schema file. Terraform backed providers also require a tfbridge binary.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
@@ -25,11 +25,9 @@ var (
 	providerPath      string
 	providerName      string
 	rawLanguageString string
-	outputPath        string
+	sdkLocation       string
 	sdkVersionString  string
 	schemaPath        string
-	sdkLocation       string
-	installLocation   string
 
 	quiet bool
 )
@@ -46,14 +44,16 @@ func Execute() {
 func init() {
 
 	// Global flags used in multiple commands
-	rootCmd.PersistentFlags().StringVarP(&providerPath, "providerPath", "p", "./", "Path to the provider you want to build")
+	rootCmd.PersistentFlags().StringVarP(&providerPath, "providerPath", "p", "./", "Path to provider directory")
 	rootCmd.PersistentFlags().StringVarP(&providerName, "providerName", "n", "", "Name of the provider (required)")
-	rootCmd.PersistentFlags().StringVarP(&rawLanguageString, "language", "l", "all", "Comma seperated list of programming languages you wish to generate SDKs for")
-	rootCmd.PersistentFlags().StringVarP(&outputPath, "out", "o", "", "Where you would like to output generated SDKs if different than {provider}/sdk")
-	rootCmd.PersistentFlags().StringVar(&schemaPath, "schema", "", "Absolute path of schema.json. Defaults to  '{provider}/provider/cmd/pulumi-resource-random/schema.json'")
-	rootCmd.PersistentFlags().StringVar(&sdkVersionString, "version", "4.0.0-alpha.0+dev", "SDK Version5")
-	rootCmd.PersistentFlags().StringVar(&sdkLocation, "sdkLocation", "./sdk", "Location of the compiled SDK to install.")
-	rootCmd.PersistentFlags().StringVar(&installLocation, "installLocation", ".", "Path to install chosen SDK at")
+	rootCmd.PersistentFlags().StringVarP(&rawLanguageString, "language", "l", "all", "Languages to generate (comma-separated or 'all')")
+	rootCmd.PersistentFlags().StringVar(&sdkLocation, "sdkLocation", "", "SDK directory (default: {provider}/sdk)")
+	rootCmd.PersistentFlags().StringVar(&schemaPath, "schema", "", "Path to schema.json file")
+	rootCmd.PersistentFlags().StringVar(&sdkVersionString, "version", "4.0.0-alpha.0+dev", "SDK Version")
 
-	rootCmd.PersistentFlags().BoolVarP(&quiet, "quiet", "q", false, "Quiet output (hide command details)")
+	// Deprecated alias for backwards compatibility
+	rootCmd.PersistentFlags().StringVarP(&sdkLocation, "out", "o", "", "Deprecated: use --sdkLocation instead")
+	rootCmd.PersistentFlags().MarkDeprecated("out", "please use --sdkLocation instead")
+
+	rootCmd.PersistentFlags().BoolVarP(&quiet, "quiet", "q", false, "Suppress command output")
 }
