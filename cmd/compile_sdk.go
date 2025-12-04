@@ -14,13 +14,8 @@ import (
 // compileSdkCmd represents the compileSdk command
 var compileSdkCmd = &cobra.Command{
 	Use:   "compile",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Compile and package Pulumi SDKs",
+	Long:  `Compile and package generated SDKs for distribution`,
 	Run: func(cmd *cobra.Command, args []string) {
 		compileSdk()
 	},
@@ -36,7 +31,7 @@ func compileSdk() error {
 		fmt.Printf("Compiling the SDKs found at Path: %s\nLanguages: %v\n", providerPath, rawLanguageString)
 	}
 
-	params, err := builder.ParseInputs(providerPath, providerName, rawLanguageString, schemaPath, outputPath, sdkVersionString)
+	params, err := builder.ParseInputs(providerPath, providerName, rawLanguageString, schemaPath, sdkLocation, sdkVersionString)
 	if err != nil {
 		return err
 	}

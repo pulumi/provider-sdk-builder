@@ -15,7 +15,7 @@ import (
 var buildSdksCmd = &cobra.Command{
 	Use:   "build-sdks",
 	Short: "Generates, compiles, and packages SDKs for use",
-	Long:  `Accepts a schema file, tfbridge binary (if applicable), output directory, and language to generate, compile, and package the SDK for use.`,
+	Long:  `Generates and compiles SDKs from schema`,
 	Run: func(cmd *cobra.Command, args []string) {
 		buildSdk()
 	},
@@ -31,7 +31,7 @@ func buildSdk() error {
 		fmt.Printf("Building SDKs for provider found at Path: %s\nLanguages: %v\n", providerPath, rawLanguageString)
 	}
 
-	params, err := builder.ParseInputs(providerPath, providerName, rawLanguageString, schemaPath, outputPath, sdkVersionString)
+	params, err := builder.ParseInputs(providerPath, providerName, rawLanguageString, schemaPath, sdkLocation, sdkVersionString)
 	if err != nil {
 		return err
 	}

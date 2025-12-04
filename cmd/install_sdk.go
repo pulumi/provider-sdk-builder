@@ -12,6 +12,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	installLocation string
+)
+
 // installSdkCmd represents the installSdk command
 var installSdkCmd = &cobra.Command{
 	Use:   "install",
@@ -56,4 +60,7 @@ func installSdk() error {
 
 func init() {
 	rootCmd.AddCommand(installSdkCmd)
+
+	// Command-specific flags
+	installSdkCmd.Flags().StringVar(&installLocation, "installLocation", ".", "Installation directory")
 }

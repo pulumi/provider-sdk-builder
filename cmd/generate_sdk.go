@@ -16,8 +16,7 @@ import (
 var generateSdkCmd = &cobra.Command{
 	Use:   "generate",
 	Short: "Generates the source code for a Pulumi SDK",
-	Long: `Generates sdks for each of the specified languages using the schema of your choice.
-	Outputs will be stored in the form /sdk/{lang} in the directory specified by output path`,
+	Long:  `Generate SDK source code for specified languages from provider schema. Output to {sdkLocation}/{lang}/`,
 
 	Run: func(cmd *cobra.Command, args []string) {
 		generateRawSdk()
@@ -34,7 +33,7 @@ func generateRawSdk() error {
 		fmt.Printf("Generating the SDKs for provider found at Path: %s\nLanguages: %v\n", providerPath, rawLanguageString)
 	}
 
-	params, err := builder.ParseInputs(providerPath, providerName, rawLanguageString, schemaPath, outputPath, sdkVersionString)
+	params, err := builder.ParseInputs(providerPath, providerName, rawLanguageString, schemaPath, sdkLocation, sdkVersionString)
 	if err != nil {
 		return err
 	}
